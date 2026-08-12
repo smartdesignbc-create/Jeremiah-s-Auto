@@ -3,843 +3,2177 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sell Your Car — Jeremiah's Auto</title>
+<title>Jeremiah's Auto — Vehicle Inventory & Intelligence System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --black: #0f0f0f;
-    --charcoal: #1c1c1c;
-    --red: #e2231a;
-    --red-dark: #b81b14;
-    --gold: #c8a24d;
-    --gold-soft: #e8d9b0;
-    --cream: #f7f5f1;
-    --white: #ffffff;
-    --ink: #1a1a1a;
-    --muted: #6b6b6b;
-  }
   * { box-sizing: border-box; }
   body {
-    margin: 0; background: var(--cream); color: var(--ink);
-    font-family: 'Manrope', sans-serif; -webkit-font-smoothing: antialiased;
+    font-family: 'Inter', -apple-system, Segoe UI, Arial, sans-serif;
+    margin: 0;
+    background: #ffffff;
+    color: #1a1a1a;
   }
-  h1, h2, h3, .display { font-family: 'Playfair Display', serif; }
-  .mono { font-family: 'IBM Plex Mono', monospace; }
-  a { color: inherit; }
-  button { font-family: inherit; }
-
-  @media (prefers-reduced-motion: reduce) {
-    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  header {
+    background: #e2231a;
+    color: #fff;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    row-gap: 12px;
   }
-
-  /* ============ TOP BAR ============ */
-  .topbar {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 20px 32px; background: var(--black);
+  .header-titles { display: flex; flex-direction: column; gap: 2px; }
+  .brand-name { font-size: 22px; font-weight: 700; margin: 0; color: #fff; letter-spacing: .01em; }
+  .system-name { font-size: 13px; font-weight: 500; margin: 0; color: #f7dcd8; }
+  nav button {
+    background: #1a1a1a;
+    border: 1px solid #1a1a1a;
+    color: #fff;
+    padding: 8px 14px;
+    margin-left: 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 13px;
   }
-  .topbar .wordmark { color: var(--white); font-weight: 800; font-size: 20px; letter-spacing: .04em; }
-  .topbar .wordmark span { color: var(--red); }
-  .topbar .wordmark-tagline { color: var(--gold); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; margin-top: 3px; font-weight: 600; }
-  .topbar .admin-link { color: #7a7a7a; font-size: 12px; text-decoration: none; letter-spacing: .03em; border: 1px solid #333; padding: 6px 12px; border-radius: 20px; cursor: pointer; background: none; }
-  .topbar .admin-link:hover { color: var(--gold); border-color: var(--gold); }
-
-  /* ============ VIEWS ============ */
+  nav button.active { background: #fff; color: #1a1a1a; font-weight: 600; border-color: #fff; }
+  .auth-notice { font-size: 11px; color: #ffe3e0; letter-spacing: .02em; font-weight: 500; }
+  .global-back-btn {
+    background: #1a1a1a; border: 1px solid #1a1a1a; color: #fff; padding: 8px 14px;
+    border-radius: 4px; font-size: 13px; cursor: pointer;
+  }
+  .global-back-btn:hover { background: #000; }
+  main { padding: 24px; max-width: 1100px; margin: 0 auto; }
   .view { display: none; }
+
+  /* Consistent elevation system — subtle shadow depth used across every
+     card-like surface in the app, so it reads as one cohesive product
+     rather than a set of flat bordered boxes. */
+  .info-card, .vehicle-row, .comment-card, form.intake, .total-tile,
+  .followup-card, .archived-banner, .flag-box, .addon-box, .lb-table-wrap,
+  .lb-podium-card {
+    box-shadow: 0 1px 2px rgba(16, 24, 32, 0.04), 0 2px 8px rgba(16, 24, 32, 0.06);
+  }
+  .vehicle-row:hover { box-shadow: 0 2px 4px rgba(16, 24, 32, 0.06), 0 6px 16px rgba(16, 24, 32, 0.1); }
   .view.active { display: block; }
 
-  /* ============ HERO (public landing) ============ */
-  .hero {
-    background: var(--black); color: var(--white);
-    padding: 90px 24px 70px; text-align: center; position: relative;
-  }
-  .hero-eyebrow { color: var(--gold); font-size: 13px; letter-spacing: .18em; text-transform: uppercase; font-weight: 600; margin-bottom: 18px; }
-  .hero h1 { font-size: 52px; line-height: 1.1; margin: 0 0 22px; font-weight: 700; }
-  .hero h1 em { font-style: normal; color: var(--red); }
-  .hero p.sub { font-size: 18px; color: #c9c9c9; max-width: 520px; margin: 0 auto 38px; line-height: 1.6; }
-  .btn-sell {
-    background: var(--red); color: var(--white); border: none; padding: 18px 44px;
-    font-size: 16px; font-weight: 700; letter-spacing: .03em; border-radius: 4px; cursor: pointer;
-    transition: background 0.15s ease, transform 0.15s ease;
-  }
-  .btn-sell:hover { background: var(--red-dark); transform: translateY(-1px); }
-  .hero-divider { width: 60px; height: 2px; background: var(--gold); margin: 46px auto 0; }
+  .section-title { font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: #555; margin: 24px 0 12px; }
 
-  .trust-row {
-    display: flex; justify-content: center; gap: 56px; flex-wrap: wrap;
-    padding: 40px 24px; background: var(--black); border-top: 1px solid #262626;
+  .motivation-panel {
+    background: #1b2436; border-radius: 6px; padding: 12px 18px; margin-bottom: 20px;
+    border-left: 3px solid #e2231a;
   }
-  .trust-item { text-align: center; max-width: 180px; }
-  .trust-item .k { color: var(--gold); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; margin-bottom: 6px; }
-  .trust-item .v { color: #d8d8d8; font-size: 13px; line-height: 1.5; }
+  .motivation-title { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: #8d97ab; margin-bottom: 8px; }
+  .motivation-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 24px; }
+  .motivation-list li { color: #fff; font-size: 13px; font-weight: 700; line-height: 1.3; }
+  .tip-text { font-size: 12px; color: #555; margin: -6px 0 14px; max-width: 640px; line-height: 1.5; }
 
-  .how-section { padding: 70px 24px; text-align: center; }
-  .how-section h2 { font-size: 28px; margin: 0 0 12px; }
-  .how-section .lede { color: var(--muted); font-size: 15px; margin: 0 auto 46px; max-width: 480px; }
-  .how-steps { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; max-width: 780px; margin: 0 auto; }
-  .how-step { max-width: 200px; }
-  .how-step .num { font-family: 'IBM Plex Mono', monospace; color: var(--red); font-size: 13px; font-weight: 600; margin-bottom: 10px; }
-  .how-step h3 { font-size: 17px; margin: 0 0 8px; }
-  .how-step p { font-size: 14px; color: var(--muted); line-height: 1.55; margin: 0; }
+  .branch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .branch-tile {
+    border: 1px solid #ddd; border-radius: 6px; padding: 10px 12px;
+    cursor: pointer; text-align: left; transition: filter 0.15s ease, box-shadow 0.15s ease;
+    position: relative; overflow: hidden; min-height: 62px;
+  }
+  .branch-tile:hover { filter: brightness(0.96); }
+  .tile-content { position: relative; }
+  .branch-tile .name { font-size: 12px; font-weight: 700; margin-bottom: 1px; }
+  .branch-tile .count { font-size: 17px; font-weight: 700; }
+  .branch-tile .label { font-size: 10px; }
+  .branch-tile .click-hint { font-size: 11px; font-weight: 700; margin-top: 4px; letter-spacing: .02em; display: flex; align-items: center; gap: 4px; }
+  .branch-tile .click-hint .hand-icon { font-size: 13px; }
 
-  .foot {
-    background: var(--black); color: #8a8a8a; text-align: center;
-    padding: 28px 24px; font-size: 13px;
-  }
-  .foot .branches { margin-top: 6px; color: #5c5c5c; }
-  .foot .contact-line { margin-top: 14px; color: #8a8a8a; font-size: 12px; }
-  .foot .footer-links { margin-top: 10px; font-size: 11px; }
-  .foot .footer-links a { color: #6b6b6b; text-decoration: none; }
-  .foot .footer-links a:hover { color: var(--gold); text-decoration: underline; }
+  .branch-tile.variant-black { background: #141414; border-color: #141414; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22); }
+  .branch-tile.variant-black .name, .branch-tile.variant-black .count { color: #fff; }
+  .branch-tile.variant-black .label { color: #a8a8a8; }
+  .branch-tile.variant-black .click-hint { color: #ff5b52; }
 
-  .badges-row { display: flex; justify-content: center; gap: 46px; padding: 34px 24px; background: var(--cream); flex-wrap: wrap; }
-  .badge-item { display: flex; align-items: center; gap: 12px; }
-  .badge-mark {
-    width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--gold);
-    display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; font-weight: 700; color: var(--gold); flex-shrink: 0;
-  }
-  .badge-label { font-size: 11px; color: var(--muted); line-height: 1.4; text-align: left; }
 
-  /* ============ FORM VIEW ============ */
-  .form-page { max-width: 640px; margin: 0 auto; padding: 40px 24px 80px; }
-  .form-page-header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
-  .back-link { background: none; border: none; color: var(--muted); font-size: 14px; cursor: pointer; padding: 0; }
-  .back-link:hover { color: var(--ink); }
-  .form-page h1 { font-size: 30px; margin: 18px 0 6px; }
-  .form-page .lede { color: var(--muted); font-size: 14px; margin: 0 0 34px; line-height: 1.6; }
+  .total-tile {
+    background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 16px;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    cursor: default;
+  }
+  .total-tile-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: #555; margin-bottom: 8px; }
+  .total-tile .donut-wrap { position: relative; width: 110px; height: 110px; }
+  .total-tile .donut-center {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .total-tile .donut-center .num { font-size: 26px; font-weight: 700; line-height: 1; }
+  .total-tile .donut-center .cap { font-size: 10px; color: #777; margin-top: 2px; }
+  .total-tile .donut-legend { margin-top: 10px; width: 100%; }
+  .total-tile .legend-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; padding: 2px 0; }
+  .total-tile .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 6px; flex-shrink: 0; }
+  .total-tile .legend-left { display: flex; align-items: center; }
+  .total-tile .legend-count { font-weight: 600; }
 
-  fieldset { border: none; padding: 0; margin: 0 0 30px; }
-  legend { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; margin-bottom: 14px; padding: 0; }
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #333; }
-  .field .hint { font-weight: 400; color: var(--muted); }
-  .field input, .field select, .field textarea {
-    width: 100%; padding: 12px 13px; border: 1px solid #d8d4cc; border-radius: 5px;
-    font-size: 14px; font-family: inherit; background: var(--white); color: var(--ink);
+  .search-bar { display: flex; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+  .search-bar input[type="text"] {
+    flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
   }
-  .field input:focus, .field select:focus, .field textarea:focus {
-    outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(226,35,26,0.1);
-  }
-  .field textarea { resize: vertical; min-height: 80px; }
-  .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .search-bar select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+  .search-bar button { padding: 10px 16px; border: none; background: #222; color: #fff; border-radius: 4px; cursor: pointer; font-size: 14px; }
 
-  .photo-zone {
-    border: 2px dashed #d8d4cc; border-radius: 8px; padding: 26px; text-align: center;
-    background: #fdfcfa; margin-bottom: 12px;
+  .vehicle-list { display: flex; flex-direction: column; gap: 8px; }
+  .vehicle-row {
+    background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+    gap: 12px;
   }
-  .photo-zone .icon { font-size: 26px; margin-bottom: 8px; }
-  .photo-zone .label { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
-  .photo-zone .sub { font-size: 12px; color: var(--muted); }
-  .photo-zone input[type=file] { display: none; }
-  .photo-zone-btn {
-    display: inline-block; margin-top: 12px; background: var(--ink); color: var(--white);
-    padding: 13px 22px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer;
+  .vehicle-row:hover { border-color: #999; }
+  .vehicle-row .row-thumb { flex-shrink: 0; width: 56px; height: 42px; }
+  .vehicle-row .main { flex: 1; min-width: 0; }
+  .vehicle-row .title { font-weight: 600; font-size: 14px; }
+  .vehicle-row .sub { font-size: 12px; color: #777; margin-top: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .vehicle-row .meta { text-align: right; font-size: 13px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .btn-view-report {
+    background: #222; color: #fff; border: none; border-radius: 4px; padding: 6px 12px; font-size: 12px; cursor: pointer;
   }
-  .photo-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 8px; margin-top: 4px; }
+
+  .branch-chip {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 4px;
+    border: 1.5px solid; letter-spacing: .02em;
+  }
+  .branch-PMB { color: #1f4e8a; border-color: #1f4e8a; background: #eaf1fb; }
+  .branch-Richards-Bay { color: #1c7a3c; border-color: #1c7a3c; background: #eaf7ee; }
+  .branch-Durban { color: #9a5300; border-color: #9a5300; background: #fdf1e2; }
+
+  .comment-flag { font-size: 11px; color: #555; background: #eee; border-radius: 4px; padding: 2px 7px; }
+
+  .status-badge {
+    display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600;
+  }
+  .status-Available { background: #e3f6e9; color: #1c7a3c; }
+  .status-Reserved { background: #fff4da; color: #9a6a00; }
+  .status-Sold { background: #f3e3e3; color: #8a2323; }
+
+  .empty-state { text-align: center; color: #888; padding: 40px 20px; border: 1px dashed #ccc; border-radius: 6px; }
+
+  .back-link { background: none; border: none; color: #444; cursor: pointer; font-size: 13px; padding: 0; margin-bottom: 12px; }
+  .detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+  .detail-header-actions { display: flex; gap: 8px; }
+  .detail-header-actions button { padding: 8px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+  .btn-edit { background: #222; color: #fff; border: none; }
+  .btn-delete { background: #fff; color: #b32424; border: 1px solid #b32424; }
+
+  .floor-badge { font-size: 12px; padding: 4px 10px; border-radius: 4px; background: #eee; color: #444; display: inline-block; margin-top: 6px; }
+  .floor-badge.aging { background: #fdece3; color: #a03d0a; font-weight: 600; }
+
+  .detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+  .photo-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
   .photo-thumb {
-    aspect-ratio: 1; border-radius: 6px; background: #e5e1d8; display: flex; align-items: center;
-    justify-content: center; font-size: 10px; color: #8a8578; position: relative; overflow: hidden; text-align: center; padding: 4px;
+    background: #e4e4e4; border: 1px solid #ccc; border-radius: 4px; height: 100px;
+    display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; text-align: center;
   }
-  .photo-thumb .remove {
-    position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); color: #fff; border: none;
-    width: 18px; height: 18px; border-radius: 50%; font-size: 11px; cursor: pointer; line-height: 1;
-  }
-  .photo-count-note { font-size: 12px; color: var(--muted); margin-top: 6px; }
-  .photo-count-note.ok { color: #1c7a3c; }
+  .info-card { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+  .info-card h3 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: #555; }
+  .field-row { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+  .field-row:last-child { border-bottom: none; }
+  .field-row .k { color: #777; }
+  .field-row .v { font-weight: 600; text-align: right; }
+  .flag-box { background: #fff8ec; border: 1px solid #f0dca0; border-radius: 6px; padding: 14px; margin-bottom: 16px; }
+  .flag-box h3 { margin: 0 0 6px; font-size: 13px; color: #8a6600; }
+  .flag-box p { margin: 0; font-size: 14px; }
+  .addon-box { background: #eef5ff; border: 1px solid #b9d3f5; border-radius: 6px; padding: 14px; margin-bottom: 16px; }
+  .addon-box h3 { margin: 0 0 6px; font-size: 13px; color: #1f4e8a; }
 
-  .submit-row { margin-top: 34px; }
-  .btn-submit {
-    width: 100%; background: var(--red); color: var(--white); border: none; padding: 16px;
-    font-size: 15px; font-weight: 700; border-radius: 5px; cursor: pointer; letter-spacing: .02em;
+  /* Comments / lead log */
+  .comment-card { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 16px; margin-top: 24px; }
+  .comment-card h3 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: #555; }
+  .comment-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .comment-form .full { grid-column: 1 / -1; }
+  .comment-form label { font-size: 12px; font-weight: 600; color: #444; display: block; margin-bottom: 4px; }
+  .comment-form select, .comment-form input, .comment-form textarea {
+    width: 100%; padding: 9px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; font-family: inherit;
   }
-  .btn-submit:disabled { background: #e0d9d0; color: #a89f90; cursor: not-allowed; }
-  .btn-submit:not(:disabled):hover { background: var(--red-dark); }
-  .submit-note { text-align: center; font-size: 12px; color: var(--muted); margin-top: 10px; }
-  .privacy-line { font-size: 12px; color: var(--muted); background: #f0eee8; border-radius: 5px; padding: 10px 14px; margin: 4px 0 0; }
-  .field-error { color: var(--red); font-size: 12px; margin-top: 4px; display: none; }
+  .comment-form button { padding: 10px 16px; background: #222; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+  .comment-entry { border-top: 1px solid #eee; padding: 12px 0; }
+  .comment-entry:first-child { border-top: none; }
+  .comment-entry-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .comment-cat {
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #eee; color: #444;
+  }
+  .comment-cat.Interested { background: #e3f6e9; color: #1c7a3c; }
+  .comment-cat.NotInterested { background: #f3e3e3; color: #8a2323; }
+  .comment-cat.Potential { background: #fff4da; color: #9a6a00; }
+  .comment-cat.TestDrive { background: #eaf1fb; color: #1f4e8a; }
+  .comment-cat.OnHold { background: #f0e6f7; color: #6a2d9a; }
+  .comment-cat.SoldClosed { background: #e8e8e8; color: #333; }
+  .comment-meta { font-size: 12px; color: #888; }
+  .comment-text { font-size: 14px; margin: 0; }
+  .activity-log { font-size: 12px; color: #999; margin-top: 20px; }
+  .activity-log li { margin-bottom: 3px; }
 
-  /* ============ CONFIRMATION VIEW ============ */
-  .confirm-page { max-width: 480px; margin: 60px auto; padding: 0 24px; text-align: center; }
-  .confirm-check {
-    width: 56px; height: 56px; border-radius: 50%; background: #1c7a3c; color: #fff;
-    display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 22px;
+  form.intake { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 24px; }
+  .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; font-weight: 600; color: #444; }
+  .field .hint { font-size: 11px; color: #999; font-weight: 400; }
+  .field input, .field select, .field textarea {
+    padding: 9px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; font-family: inherit;
   }
-  .confirm-page h1 { font-size: 26px; margin: 0 0 10px; }
-  .confirm-page p.lede { color: var(--muted); font-size: 14px; margin: 0 0 34px; }
-  .ticket {
-    background: var(--black); color: var(--white); border-radius: 10px; padding: 26px;
-    text-align: left; position: relative; margin-bottom: 30px;
-  }
-  .ticket::before, .ticket::after {
-    content: ""; position: absolute; width: 20px; height: 20px; background: var(--cream);
-    border-radius: 50%; top: 50%; transform: translateY(-50%);
-  }
-  .ticket::before { left: -10px; }
-  .ticket::after { right: -10px; }
-  .ticket .perf { border-top: 2px dashed #444; margin: 18px 0; }
-  .ticket .row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
-  .ticket .row .k { color: #9a9a9a; }
-  .ticket .ref { font-family: 'IBM Plex Mono', monospace; color: var(--gold); font-size: 20px; font-weight: 600; }
-  .ticket .seller-name { font-size: 15px; font-weight: 700; margin-top: 2px; }
-  .btn-secondary {
-    background: none; border: 1.5px solid var(--ink); color: var(--ink); padding: 12px 26px;
-    border-radius: 5px; font-size: 14px; font-weight: 600; cursor: pointer;
-  }
+  .field textarea { resize: vertical; min-height: 70px; }
+  .field .warn-text { font-size: 12px; color: #b32424; margin-top: 2px; }
+  fieldset { border: 1px solid #e2e2e2; border-radius: 6px; margin: 20px 0; padding: 16px; }
+  legend { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: #555; padding: 0 6px; }
 
-  /* ============ ADMIN GATE ============ */
-  .gate-page { max-width: 360px; margin: 100px auto; padding: 0 24px; text-align: center; }
-  .gate-page h1 { font-size: 22px; margin: 0 0 8px; }
-  .gate-page p { color: var(--muted); font-size: 13px; margin: 0 0 24px; }
-  .gate-page input {
-    width: 100%; padding: 13px; border: 1px solid #d8d4cc; border-radius: 5px; font-size: 15px;
-    text-align: center; letter-spacing: .1em; margin-bottom: 14px;
+  .photo-capture-area { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .capture-btn {
+    padding: 10px 16px; border: 1px dashed #999; background: #fafafa; border-radius: 4px; cursor: pointer; font-size: 13px;
   }
-  .gate-page .demo-note { margin-top: 20px; font-size: 12px; color: #a89f90; line-height: 1.6; }
-  .gate-error { color: var(--red); font-size: 13px; margin-bottom: 12px; display: none; }
+  .photo-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; margin-top: 10px; }
+  .photo-preview {
+    position: relative; height: 90px; background: #ddd; border-radius: 4px; display: flex; align-items: center;
+    justify-content: center; font-size: 10px; color: #666; border: 1px solid #ccc;
+  }
+  .photo-preview button {
+    position: absolute; top: 2px; right: 2px; background: #222; color: #fff; border: none; border-radius: 50%;
+    width: 18px; height: 18px; font-size: 11px; cursor: pointer; line-height: 1;
+  }
+  .photo-counter { font-size: 13px; margin-top: 6px; }
+  .photo-counter.ok { color: #1c7a3c; }
+  .photo-counter.bad { color: #b32424; }
 
-  /* ============ ADMIN DASHBOARD ============ */
-  .admin-page { max-width: 980px; margin: 0 auto; padding: 30px 24px 80px; }
-  .admin-banner {
-    background: var(--red); color: var(--white); text-align: center; padding: 8px;
-    font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  .submit-row { margin-top: 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .submit-row button {
+    padding: 12px 22px; background: #222; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;
   }
-  .admin-header { display: flex; justify-content: space-between; align-items: flex-end; margin: 26px 0 22px; flex-wrap: wrap; gap: 12px; }
-  .admin-header h1 { font-size: 24px; margin: 0 0 4px; }
-  .admin-header .lede { font-size: 13px; color: var(--muted); margin: 0; }
-  .admin-filter-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-  .admin-filter-row input { flex: 1; min-width: 200px; padding: 10px 13px; border: 1px solid #d8d4cc; border-radius: 5px; font-size: 13px; font-family: inherit; }
-  .admin-filter-row select { padding: 10px 13px; border: 1px solid #d8d4cc; border-radius: 5px; font-size: 13px; font-family: inherit; background: #fff; }
-  .no-results { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
-  .admin-logout { background: none; border: 1px solid #ccc; padding: 8px 16px; border-radius: 5px; font-size: 13px; cursor: pointer; color: var(--muted); }
+  .submit-row button.secondary { background: #fff; color: #444; border: 1px solid #ccc; }
+  .submit-row button:disabled { background: #aaa; cursor: not-allowed; }
+  .submit-note { font-size: 12px; color: #888; }
 
-  .submission-row {
-    background: var(--white); border: 1px solid #e6e2d8; border-radius: 8px; padding: 16px 18px;
-    display: flex; align-items: center; gap: 16px; margin-bottom: 10px; cursor: pointer;
-    transition: border-color 0.12s ease;
-  }
-  .submission-row:hover { border-color: var(--gold); }
-  .submission-row .ref-badge {
-    font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--red);
-    background: #fdeceb; padding: 4px 10px; border-radius: 4px; flex-shrink: 0;
-  }
-  .submission-row .info { flex: 1; min-width: 0; }
-  .submission-row .info .name { font-weight: 700; font-size: 14px; }
-  .submission-row .info .car { font-size: 13px; color: var(--muted); margin-top: 2px; }
-  .status-pill { font-size: 11px; font-weight: 700; padding: 4px 11px; border-radius: 20px; text-transform: uppercase; letter-spacing: .03em; flex-shrink: 0; }
-  .status-New { background: #eaf1fb; color: #1f4e8a; }
-  .status-Contacted { background: #fdf1e2; color: #9a5300; }
-  .status-Offer-Made { background: #f3eadd; color: var(--gold); background: #f7edd6; color: #8a6a1e; }
-  .status-Purchased { background: #eaf7ee; color: #1c7a3c; }
-  .status-Declined { background: #f0f0f0; color: #777; }
-  .empty-admin { text-align: center; padding: 60px 20px; color: var(--muted); }
-  .empty-admin .big { font-size: 40px; margin-bottom: 12px; }
-
-  /* ============ ADMIN DETAIL ============ */
-  .detail-page { max-width: 820px; margin: 0 auto; padding: 30px 24px 80px; }
-  .detail-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 30px; margin-top: 20px; }
-  .detail-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .detail-photos .photo-thumb { aspect-ratio: 4/3; font-size: 11px; }
-  .detail-card { background: var(--white); border: 1px solid #e6e2d8; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
-  .detail-card h3 { font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 14px; }
-  .detail-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #f2efe9; font-size: 14px; }
-  .detail-row:last-child { border-bottom: none; }
-  .detail-row .k { color: var(--muted); }
-  .detail-row .v { font-weight: 600; text-align: right; }
-  .condition-note { font-size: 14px; line-height: 1.6; color: #333; }
-  .status-select { width: 100%; padding: 10px; border: 1px solid #d8d4cc; border-radius: 5px; font-size: 13px; margin-bottom: 10px; }
-  .btn-whatsapp {
-    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
-    background: #1fae53; color: #fff; border: none; padding: 14px; border-radius: 5px;
-    font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none;
-  }
-  .btn-whatsapp:hover { background: #189042; }
-
-  .detail-photos .photo-thumb { cursor: pointer; }
-  .detail-photos .photo-thumb:hover { outline: 2px solid var(--gold); outline-offset: 2px; }
-  .lightbox {
-    display: none; position: fixed; inset: 0; background: rgba(10,10,10,0.92); z-index: 100;
-    align-items: center; justify-content: center; padding: 30px;
-  }
-  .lightbox.open { display: flex; }
-  .lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; }
-  .lightbox-close {
-    position: absolute; top: 20px; right: 26px; background: none; border: none; color: #fff;
-    font-size: 34px; cursor: pointer; line-height: 1;
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; background: #222; color: #fff; padding: 12px 18px;
+    border-radius: 6px; font-size: 14px; display: none; max-width: 320px;
   }
 
-  @media (max-width: 800px) {
+  /* Archive */
+  .archive-link-row { margin-top: 14px; }
+  .archive-link-row button { background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 13px; padding: 0; }
+  .btn-restore { background: #1c7a3c; color: #fff; border: none; }
+  .archived-banner { background: #eee; border: 1px solid #ccc; border-radius: 6px; padding: 10px 14px; font-size: 13px; color: #555; margin-bottom: 16px; }
+
+  /* Follow-ups panel */
+  .followup-card { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 16px; margin-top: 16px; }
+  .followup-header-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .followup-toggle-btn {
+    background: #e2231a; color: #fff; border: none; border-radius: 6px; padding: 10px 16px; cursor: pointer;
+    display: flex; align-items: center; gap: 10px; font-size: 13px; text-transform: uppercase;
+    letter-spacing: .03em; font-family: inherit;
+  }
+  .followup-toggle-btn:hover { background: #bd1d15; }
+  .followup-count-badge {
+    display: inline-block; background: #fff; color: #e2231a; font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px; text-transform: none; letter-spacing: 0;
+  }
+  .aging-toggle-btn {
+    background: #a03d0a; color: #fff; border: none; border-radius: 6px; padding: 10px 16px; cursor: pointer;
+    display: flex; align-items: center; gap: 10px; font-size: 13px; text-transform: uppercase;
+    letter-spacing: .03em; font-family: inherit;
+  }
+  .aging-toggle-btn:hover { background: #832f07; }
+  .aging-count-badge {
+    display: inline-block; background: #fff; color: #a03d0a; font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px; text-transform: none; letter-spacing: 0;
+  }
+
+  .heatmap-panel { background: #141414; border-radius: 6px; padding: 20px 24px; margin-bottom: 20px; }
+  #heatmap-grid { overflow-x: auto; }
+  .heatmap-toggle-row { display: flex; gap: 8px; margin-bottom: 18px; }
+  .heatmap-toggle-btn {
+    background: transparent; color: #a8a8a8; border: 1px solid #3a3a3a; border-radius: 6px;
+    padding: 8px 16px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit;
+  }
+  .heatmap-toggle-btn.active { background: #fff; color: #141414; border-color: #fff; }
+  .heatmap-kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .heatmap-kpi { background: #1f1f1f; border-radius: 6px; padding: 12px 16px; }
+  .heatmap-kpi .k { font-size: 12px; color: #999; margin-bottom: 4px; }
+  .heatmap-kpi .v { font-size: 22px; font-weight: 700; color: #fff; }
+  .heatmap-grid-inner { display: grid; grid-template-columns: 110px repeat(6, 1fr); gap: 6px; min-width: 480px; }
+  .heatmap-month-label { font-size: 12px; color: #999; text-align: center; padding: 4px 0; }
+  .heatmap-branch-label { font-size: 13px; font-weight: 600; color: #fff; display: flex; align-items: center; }
+  .heatmap-cell { border-radius: 6px; padding: 10px 4px; text-align: center; font-size: 13px; font-weight: 700; }
+  .heatmap-legend { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 12px; color: #999; }
+  .heatmap-legend-bar { width: 120px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #1c2b3e, #4fa8e0); }
+  .followup-chevron { font-size: 14px; transition: transform 0.15s ease; }
+  .followup-chevron.open { transform: rotate(90deg); }
+  .tap-here-label { font-size: 15px; color: #000; font-weight: 800; letter-spacing: .01em; }
+  .followup-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+  .followup-row:last-child { border-bottom: none; }
+  .followup-row:hover { background: #fafafa; }
+  .followup-date { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 4px; background: #eee; color: #444; }
+  .followup-date.overdue { background: #fdece3; color: #a03d0a; }
+  .followup-date.today { background: #fff4da; color: #9a6a00; }
+
+  /* Advanced filters */
+  .filters-toggle { background: none; border: 1px solid #ccc; color: #444; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; margin-bottom: 10px; }
+  .filters-row { display: none; gap: 10px; flex-wrap: wrap; background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 12px; margin-bottom: 14px; }
+  .filters-row.open { display: flex; }
+  .filters-row .field-mini { display: flex; flex-direction: column; gap: 3px; }
+  .filters-row .field-mini label { font-size: 11px; color: #777; }
+  .filters-row .field-mini input, .filters-row .field-mini select { padding: 7px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; width: 130px; }
+  .filters-clear { align-self: flex-end; }
+  .filters-clear button { padding: 8px 12px; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 12px; }
+
+  /* Price history */
+  .price-history-list { font-size: 13px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f0f0f0; }
+  .price-history-list li { margin-bottom: 3px; color: #666; }
+
+  /* ============================================================
+     LEADERBOARD — deliberately distinct visual treatment.
+     Navy/charcoal ground, gold-silver-bronze podium medals, a
+     condensed motorsport-style numeral face for ranks paired with
+     Inter for data. Everywhere else in the app stays plain by
+     design; this is the one page meant to feel like a trophy room.
+     ============================================================ */
+  .lb-page {
+    background: #0f1720;
+    color: #f5f3ee;
+    border-radius: 10px;
+    padding: 32px 28px 28px;
+    margin-top: 8px;
+  }
+  .lb-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 6px; }
+  .lb-title { font-family: 'Bebas Neue', sans-serif; font-size: 34px; letter-spacing: .04em; line-height: 1; color: #f5f3ee; }
+  .lb-subtitle { font-family: 'Inter', sans-serif; font-size: 12px; color: #93a1ad; margin-top: 4px; max-width: 520px; line-height: 1.5; }
+  .lb-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+  .lb-controls select {
+    background: #182430; color: #f5f3ee; border: 1px solid #2c3b48; border-radius: 5px;
+    padding: 8px 12px; font-family: 'Inter', sans-serif; font-size: 13px; cursor: pointer;
+  }
+  .lb-sync-note {
+    font-family: 'Inter', sans-serif; font-size: 11px; color: #6f8a6f; display: flex; align-items: center; gap: 6px;
+    margin: 14px 0 26px;
+  }
+  .lb-sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #4caf6b; display: inline-block; box-shadow: 0 0 6px #4caf6b; }
+
+  .lb-podium { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 16px; align-items: end; margin-bottom: 34px; }
+  .lb-podium-card {
+    background: linear-gradient(180deg, #1a2632 0%, #141e28 100%);
+    border: 1px solid #2c3b48; border-radius: 10px; padding: 22px 16px 20px;
+    text-align: center; position: relative; opacity: 0; transform: translateY(14px);
+    animation: lbRise 0.5s ease forwards;
+  }
+  .lb-podium-card.rank-1 { padding-top: 30px; border-color: #d4af37; box-shadow: 0 0 0 1px rgba(212,175,55,0.25), 0 12px 28px rgba(212,175,55,0.12); }
+  .lb-podium-card.rank-2 { animation-delay: .08s; }
+  .lb-podium-card.rank-3 { animation-delay: .16s; }
+  @keyframes lbRise { to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    .lb-podium-card { animation: none; opacity: 1; transform: none; }
+  }
+
+  .lb-medal {
+    width: 46px; height: 46px; border-radius: 50%; margin: 0 auto 10px; display: flex;
+    align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: #1a1a1a;
+  }
+  .rank-1 .lb-medal { width: 56px; height: 56px; font-size: 24px; background: linear-gradient(135deg, #f6e6ae, #d4af37 60%, #a8791b); box-shadow: 0 4px 14px rgba(212,175,55,0.35); }
+  .rank-2 .lb-medal { background: linear-gradient(135deg, #eef1f3, #b7bcc2 60%, #8b9096); }
+  .rank-3 .lb-medal { background: linear-gradient(135deg, #e9b98a, #b5713a 60%, #8a5324); color: #fff; }
+
+  .lb-name { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; color: #f5f3ee; }
+  .lb-branch-tag { font-family: 'Inter', sans-serif; font-size: 10px; color: #93a1ad; text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+  .lb-headline-num { font-family: 'Bebas Neue', sans-serif; font-size: 42px; color: #f5f3ee; line-height: 1; margin-top: 12px; }
+  .rank-1 .lb-headline-num { font-size: 52px; color: #f4d78b; }
+  .lb-headline-cap { font-family: 'Inter', sans-serif; font-size: 10px; color: #93a1ad; text-transform: uppercase; letter-spacing: .05em; }
+  .lb-mini-stats { display: flex; justify-content: center; gap: 14px; margin-top: 14px; font-family: 'Inter', sans-serif; }
+  .lb-mini-stat { text-align: center; }
+  .lb-mini-stat .v { font-size: 15px; font-weight: 700; color: #f5f3ee; }
+  .lb-mini-stat .l { font-size: 9px; color: #93a1ad; text-transform: uppercase; letter-spacing: .04em; }
+  .lb-mini-stat .v.warn { color: #e0a45c; }
+
+  .lb-table-wrap { background: #141e28; border: 1px solid #2c3b48; border-radius: 8px; overflow-x: auto; }
+  .lb-table { width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; }
+  .lb-table th {
+    text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: #6f8393;
+    padding: 12px 16px; border-bottom: 1px solid #2c3b48; font-weight: 600;
+  }
+  .lb-table td { padding: 12px 16px; font-size: 13px; color: #e6e6e0; border-bottom: 1px solid #1e2833; }
+  .lb-table tr:last-child td { border-bottom: none; }
+  .lb-table .lb-rank-num { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: #93a1ad; }
+  .lb-table td.num { font-weight: 700; }
+  .lb-table td.warn { color: #e0a45c; font-weight: 700; }
+  .lb-table td.ok { color: #6fbf87; }
+  .lb-empty { padding: 30px; text-align: center; color: #6f8393; font-family: 'Inter', sans-serif; font-size: 13px; }
+
+  @media (max-width: 900px) {
     .detail-grid { grid-template-columns: 1fr; }
   }
+
+  @media (max-width: 700px) {
+    main { padding: 16px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .comment-form { grid-template-columns: 1fr; }
+    .photo-strip { grid-template-columns: repeat(2, 1fr); }
+    .brand-name { font-size: 19px; }
+    header { padding: 14px 16px; }
+  }
+
   @media (max-width: 640px) {
-    .hero h1 { font-size: 36px; }
-    .hero p.sub { font-size: 16px; }
-    .form-grid-2 { grid-template-columns: 1fr; }
-    .how-steps { gap: 30px; }
-    .admin-header { flex-direction: column; align-items: flex-start; }
+    .lb-podium { grid-template-columns: 1fr; }
+    .lb-podium-card.rank-1 { order: -1; }
+  }
+
+  @media (max-width: 480px) {
+    nav button { padding: 7px 10px; font-size: 12px; margin-left: 4px; }
+    .global-back-btn { padding: 7px 10px; font-size: 12px; }
+    .branch-grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+    .vehicle-row { flex-wrap: wrap; }
+    .vehicle-row .meta { align-items: flex-start; text-align: left; width: 100%; margin-top: 6px; flex-direction: row; justify-content: space-between; }
+  }
+
+  @media print {
+    header, nav, .global-back-btn, .search-bar, .filters-toggle, .filters-row, .back-link,
+    .detail-header-actions, .comment-form, .followup-card, #global-search-results,
+    .archive-link-row, #view-add, #view-edit, #view-leaderboard { display: none !important; }
+    body { background: #fff; }
+    .comment-entry-top button { display: none; }
+    main { padding: 0; }
   }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div>
-    <div class="wordmark">JEREMIAH'S<span>AUTO</span></div>
-    <div class="wordmark-tagline">Authorized &amp; Approved Dealership</div>
-  </div>
-  <button class="admin-link" id="nav-to-gate">Admin</button>
-</div>
-
-<!-- ============ LANDING ============ -->
-<section id="view-landing" class="view active">
-  <div class="hero">
-    <div class="hero-eyebrow">We Buy Cars — Professional, Friendly Service</div>
-    <h1>Sell your car<br>the <em>straightforward</em> way.</h1>
-    <p class="sub">Tell us about your car, add a few photos, and we'll come back to you with a fair, no-obligation offer — no haggling, no waiting around at a dealership.</p>
-    <button class="btn-sell" id="btn-open-form">Sell My Car</button>
-    <div class="hero-divider"></div>
-  </div>
-  <div class="trust-row">
-    <div class="trust-item"><div class="k">Straightforward</div><div class="v">One simple form. No paperwork, no back-and-forth.</div></div>
-    <div class="trust-item"><div class="k">Fast Response</div><div class="v">Our team reviews every submission personally.</div></div>
-    <div class="trust-item"><div class="k">Three Branches</div><div class="v">PMB, Richards Bay, and Durban — one team.</div></div>
-  </div>
-  <!-- DEMO PLACEHOLDER: these badges represent real accreditations to be
-       confirmed with the client before this goes live — remove or swap
-       for the real thing once confirmed which ones actually apply. -->
-  <div class="badges-row">
-    <div class="badge-item"><div class="badge-mark">RMI</div><div class="badge-label">Retail Motor Industry<br>Member (demo)</div></div>
-    <div class="badge-item"><div class="badge-mark">NCR</div><div class="badge-label">National Credit Regulator<br>Registered (demo)</div></div>
-  </div>
-  <div class="how-section">
-    <h2>How it works</h2>
-    <p class="lede">From your driveway to an offer in your pocket, in three simple steps.</p>
-    <div class="how-steps">
-      <div class="how-step"><div class="num">01</div><h3>Tell us about it</h3><p>Make, model, mileage, and condition — takes about two minutes.</p></div>
-      <div class="how-step"><div class="num">02</div><h3>Add some photos</h3><p>A few clear photos help us give you an accurate offer, faster.</p></div>
-      <div class="how-step"><div class="num">03</div><h3>We'll be in touch</h3><p>Our team reviews it and reaches out with a straightforward offer.</p></div>
+<header>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <button id="global-back-btn" class="global-back-btn" style="display:none;">&larr; Back</button>
+    <div class="header-titles">
+      <div class="brand-name">Jeremiah's Auto</div>
+      <div class="system-name">Vehicle Inventory &amp; Intelligence System</div>
     </div>
   </div>
-  <div class="foot">
-    Jeremiah's Auto — buying and selling quality used vehicles across KwaZulu-Natal.
-    <div class="branches">Pietermaritzburg &middot; Richards Bay &middot; Durban</div>
-    <!-- DEMO PLACEHOLDER, per explicit client request: a short obviously-fake
-         phone number (too short to be dialed) and "ray@gmail.com" as a quick
-         placeholder email. NOTE: unlike a reserved domain such as .example,
-         gmail.com is a real, active email provider — if "ray" happens to be
-         someone's actual address, they could receive real messages meant for
-         this business. Flagged to the client; replace with a real company
-         email before this goes anywhere near real traffic. -->
-    <div class="contact-line">123456 &middot; ray@gmail.com</div>
-    <div class="footer-links"><a href="#">Privacy Policy</a> &middot; <a href="#">Terms</a> &middot; <a href="#">Contact Us</a></div>
+  <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+    <nav>
+      <button id="nav-dashboard" class="active">Dashboard</button>
+      <button id="nav-add">Add Vehicle</button>
+      <button id="nav-leaderboard">Leaderboard</button>
+    </nav>
+    <div class="auth-notice">🔒 Authorized sales staff only</div>
   </div>
-</section>
+</header>
 
-<!-- ============ SUBMISSION FORM ============ -->
-<section id="view-form" class="view">
-  <div class="form-page">
-    <div class="form-page-header">
-      <button class="back-link" id="back-to-landing">&larr; Back</button>
+<main>
+
+  <!-- ============ DASHBOARD VIEW ============ -->
+  <section id="view-dashboard" class="view active">
+
+    <div class="motivation-panel">
+      <div class="motivation-title">The standard</div>
+      <ul class="motivation-list">
+        <li>Know your product cold — confidence sells.</li>
+        <li>Listen to what they need before you tell them what you have.</li>
+        <li>Every conversation is a sale in progress.</li>
+        <li>Make them feel valued and they'll come back for life.</li>
+      </ul>
     </div>
-    <h1>Tell us about your car</h1>
-    <p class="lede">The more detail you give us, the more accurate our offer will be. This takes about two to three minutes.</p>
 
-    <form id="sell-form">
+    <div class="section-title">Branches</div>
+    <div class="branch-grid" id="branch-grid"></div>
+    <div class="archive-link-row"><button id="view-archive-link">View archived vehicles (<span id="archive-count">0</span>)</button></div>
+
+    <div class="section-title">Search across all branches</div>
+    <p class="tip-text">Type a make, model, or year below. Results update as you type — you don't need to press a button. Choose a branch from the dropdown to search only that branch, or leave it on "All branches" to search everywhere at once and see where each match is located.</p>
+    <div class="search-bar">
+      <select id="global-scope">
+        <option value="all">All branches</option>
+        <option value="PMB">PMB</option>
+        <option value="Richards Bay">Richards Bay</option>
+        <option value="Durban">Durban</option>
+      </select>
+      <input type="text" id="global-search-input" placeholder="Start typing a make, model or year (e.g. Hilux, Polo, 2022)">
+    </div>
+    <button class="filters-toggle" id="global-filters-toggle">Advanced filters</button>
+    <div class="filters-row" id="global-filters-row">
+      <div class="field-mini"><label for="gf-status">Status</label>
+        <select id="gf-status"><option value="">Any</option><option>Available</option><option>Reserved</option><option>Sold</option></select>
+      </div>
+      <div class="field-mini"><label for="gf-price-min">Min price (R)</label><input type="number" id="gf-price-min" placeholder="0"></div>
+      <div class="field-mini"><label for="gf-price-max">Max price (R)</label><input type="number" id="gf-price-max" placeholder="No limit"></div>
+      <div class="field-mini"><label for="gf-mileage-min">Min mileage (km)</label><input type="number" id="gf-mileage-min" placeholder="0"></div>
+      <div class="field-mini"><label for="gf-mileage-max">Max mileage (km)</label><input type="number" id="gf-mileage-max" placeholder="No limit"></div>
+      <div class="filters-clear"><button type="button" id="global-filters-clear">Clear filters</button></div>
+    </div>
+    <div id="global-search-results"></div>
+
+    <div class="followup-card" id="followup-card" style="display:none;">
+      <div class="followup-header-row">
+        <button type="button" class="followup-toggle-btn" id="followup-toggle">
+          <strong>Upcoming follow-ups</strong>
+          <span class="followup-count-badge" id="followup-count-badge">0</span>
+          <span class="followup-chevron" id="followup-chevron">▸</span>
+        </button>
+        <span class="tap-here-label">Tap here</span>
+      </div>
+      <p class="tip-text" style="margin-top:8px;">A follow-up is a reminder a salesman sets when they leave a comment on a vehicle — for example, promising to call a client back once finance is approved. This pulls every open follow-up from all three branches into one place, so nothing is missed even if the salesman who set it is off or busy. Tap the red button above to show or hide the list; click any row inside it to open that vehicle's report.</p>
+      <div id="followup-list-wrap" style="display:none;">
+        <div id="followup-list"></div>
+      </div>
+    </div>
+
+    <div class="followup-card" id="aging-card" style="display:none;">
+      <div class="followup-header-row">
+        <button type="button" class="aging-toggle-btn" id="aging-toggle">
+          <strong>Aging stock (45+ days)</strong>
+          <span class="aging-count-badge" id="aging-count-badge">0</span>
+          <span class="followup-chevron" id="aging-chevron">▸</span>
+        </button>
+        <span class="tap-here-label">Tap here</span>
+      </div>
+      <p class="tip-text" style="margin-top:8px;">A vehicle appears here once it has been on the floor for 45 days or more without selling — usually a sign it needs a price review, a fresh push from the sales team, or a closer look at why it isn't moving. Tap the amber button above to show or hide the list; click any row inside it to open that vehicle's report.</p>
+      <div id="aging-list-wrap" style="display:none;">
+        <div id="aging-list"></div>
+      </div>
+    </div>
+
+    <div class="section-title">Performance heat map</div>
+    <p class="tip-text">This uses illustrative sample numbers for now — the system doesn't yet keep a month-by-month sales history, only current stock. Once that history is tracked, these figures become real.</p>
+    <div class="heatmap-panel">
+      <div class="heatmap-toggle-row">
+        <button type="button" class="heatmap-toggle-btn active" id="heatmap-btn-sales">Sales</button>
+        <button type="button" class="heatmap-toggle-btn" id="heatmap-btn-stock">Stock on floor</button>
+      </div>
+      <div class="heatmap-kpi-row">
+        <div class="heatmap-kpi"><div class="k">Total sales, 6 months</div><div class="v" id="heatmap-kpi-sales">—</div></div>
+        <div class="heatmap-kpi"><div class="k">Stock on floor now</div><div class="v" id="heatmap-kpi-stock">—</div></div>
+      </div>
+      <div id="heatmap-grid"></div>
+      <div class="heatmap-legend">
+        <span>Low</span>
+        <div class="heatmap-legend-bar"></div>
+        <span>High</span>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ============ BRANCH INVENTORY VIEW (standalone — no dashboard content shown alongside it) ============ -->
+  <section id="view-branch" class="view">
+    <button class="back-link" id="back-from-branch">&larr; Back to dashboard</button>
+    <div class="section-title" id="branch-detail-title"></div>
+    <div class="search-bar">
+      <input type="text" id="branch-search-input" placeholder="Filter this branch's stock...">
+    </div>
+    <button class="filters-toggle" id="branch-filters-toggle">Advanced filters</button>
+    <div class="filters-row" id="branch-filters-row">
+      <div class="field-mini"><label for="bf-status">Status</label>
+        <select id="bf-status"><option value="">Any</option><option>Available</option><option>Reserved</option><option>Sold</option></select>
+      </div>
+      <div class="field-mini"><label for="bf-price-min">Min price (R)</label><input type="number" id="bf-price-min" placeholder="0"></div>
+      <div class="field-mini"><label for="bf-price-max">Max price (R)</label><input type="number" id="bf-price-max" placeholder="No limit"></div>
+      <div class="field-mini"><label for="bf-mileage-min">Min mileage (km)</label><input type="number" id="bf-mileage-min" placeholder="0"></div>
+      <div class="field-mini"><label for="bf-mileage-max">Max mileage (km)</label><input type="number" id="bf-mileage-max" placeholder="No limit"></div>
+      <div class="filters-clear"><button type="button" id="branch-filters-clear">Clear filters</button></div>
+    </div>
+    <div class="vehicle-list" id="branch-vehicle-list"></div>
+  </section>
+
+  <!-- ============ ARCHIVED VEHICLES VIEW ============ -->
+  <section id="view-archive" class="view">
+    <button class="back-link" id="back-from-archive">&larr; Back to dashboard</button>
+    <div class="section-title">Archived vehicles</div>
+    <div class="archived-banner">Archived vehicles are hidden from active stock and search, but never deleted. Restore a vehicle to bring it back into active inventory.</div>
+    <div class="vehicle-list" id="archive-vehicle-list"></div>
+  </section>
+
+  <!-- ============ VEHICLE REPORT (READ-ONLY) VIEW ============ -->
+  <section id="view-detail" class="view">
+    <button class="back-link" id="back-from-detail">&larr; Back</button>
+    <div class="archived-banner" id="detail-archived-banner" style="display:none;">This vehicle is archived and hidden from active stock and search.</div>
+    <div class="detail-header">
+      <div>
+        <h2 id="detail-title" style="margin:0 0 4px;"></h2>
+        <div id="detail-location"></div>
+        <div class="floor-badge" id="detail-floor-badge"></div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span id="detail-status" class="status-badge"></span>
+        <div class="detail-header-actions" id="detail-actions-active">
+          <button class="btn-edit" id="btn-print-report" style="background:#fff;color:#444;border:1px solid #ccc;">Print report</button>
+          <button class="btn-edit" id="btn-goto-edit">Edit</button>
+          <button class="btn-delete" id="btn-delete-vehicle">Archive</button>
+        </div>
+        <div class="detail-header-actions" id="detail-actions-archived" style="display:none;">
+          <button class="btn-restore" id="btn-restore-vehicle">Restore to active stock</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div>
+        <div class="section-title">Photos</div>
+        <p class="tip-text" style="margin-top:-10px;">These stand in for the vehicle's real captured photos in this prototype — once the mobile app is built, actual camera and gallery photos will display here.</p>
+        <div class="photo-strip" id="detail-photos"></div>
+
+        <div class="info-card">
+          <h3>Description</h3>
+          <p id="detail-description" style="font-size:14px; margin:0;"></p>
+        </div>
+
+        <div class="flag-box" id="detail-concerns-wrap" style="display:none;">
+          <h3>Areas of concern</h3>
+          <p id="detail-concerns"></p>
+        </div>
+
+        <div class="addon-box" id="detail-addons-wrap" style="display:none;">
+          <h3>Add-ons / extras</h3>
+          <p id="detail-addons"></p>
+        </div>
+
+        <div class="info-card">
+          <h3>Features</h3>
+          <p id="detail-features" style="font-size:14px; margin:0;"></p>
+        </div>
+
+        <!-- Salesman comment / lead log -->
+        <div class="comment-card">
+          <h3>Client / lead comments</h3>
+          <p class="tip-text">Log every client conversation here, even a quick one. If a colleague at another branch has a client interested in the same vehicle, this history shows them exactly how far things have gone — and your contact number means they can call you directly instead of guessing.</p>
+          <div class="comment-form">
+            <div>
+              <label for="c-category">Category</label>
+              <select id="c-category">
+                <option value="Interested">Interested</option>
+                <option value="NotInterested">Not interested</option>
+                <option value="Potential">Potential — following up</option>
+                <option value="TestDrive">Test drive scheduled</option>
+                <option value="OnHold">Deal on hold</option>
+                <option value="SoldClosed">Sold / closed</option>
+              </select>
+            </div>
+            <div>
+              <label for="c-name">Your name</label>
+              <input type="text" id="c-name" placeholder="e.g. J. Naidoo">
+            </div>
+            <div>
+              <label for="c-contact">Your contact number <span class="hint" style="font-weight:400;">(optional)</span></label>
+              <input type="text" id="c-contact" placeholder="e.g. 071 234 5678">
+            </div>
+            <div>
+              <label for="c-followup">Follow-up date <span class="hint" style="font-weight:400;">(optional)</span></label>
+              <input type="date" id="c-followup">
+            </div>
+            <div class="full">
+              <label for="c-text">Comment</label>
+              <textarea id="c-text" placeholder="e.g. Client John very interested, waiting on trade-in valuation."></textarea>
+            </div>
+            <div class="full">
+              <button type="button" id="btn-add-comment">Add comment</button>
+            </div>
+          </div>
+          <div id="comment-list"></div>
+        </div>
+
+        <ul class="activity-log" id="activity-log"></ul>
+      </div>
+
+      <div>
+        <div class="info-card">
+          <h3>Commercial</h3>
+          <div class="field-row"><span class="k">Price</span><span class="v" id="d-price"></span></div>
+          <div class="field-row"><span class="k">Cost price</span><span class="v" id="d-cost"></span></div>
+          <div class="field-row"><span class="k">Profit</span><span class="v" id="d-profit"></span></div>
+          <div class="field-row"><span class="k">Status</span><span class="v" id="d-status2"></span></div>
+          <div class="field-row"><span class="k">Listing type</span><span class="v" id="d-listing"></span></div>
+          <div class="field-row"><span class="k">Mileage</span><span class="v" id="d-mileage"></span></div>
+          <ul class="price-history-list" id="price-history-list" style="display:none;"></ul>
+        </div>
+        <div class="info-card">
+          <h3>Identity</h3>
+          <div class="field-row"><span class="k">Year</span><span class="v" id="d-year"></span></div>
+          <div class="field-row"><span class="k">Color</span><span class="v" id="d-color"></span></div>
+          <div class="field-row"><span class="k">VIN / Reg</span><span class="v" id="d-vin"></span></div>
+        </div>
+        <div class="info-card">
+          <h3>Mechanical</h3>
+          <div class="field-row"><span class="k">Transmission</span><span class="v" id="d-trans"></span></div>
+          <div class="field-row"><span class="k">Fuel type</span><span class="v" id="d-fuel"></span></div>
+          <div class="field-row"><span class="k">Engine</span><span class="v" id="d-engine"></span></div>
+        </div>
+        <div class="info-card">
+          <h3>Audit</h3>
+          <div class="field-row"><span class="k">Captured by</span><span class="v" id="d-capturedby"></span></div>
+          <div class="field-row"><span class="k">Contact number</span><span class="v" id="d-capturedphone"></span></div>
+          <div class="field-row"><span class="k">Email</span><span class="v" id="d-capturedemail"></span></div>
+          <div class="field-row"><span class="k">Date captured</span><span class="v" id="d-capturedate"></span></div>
+          <div class="field-row"><span class="k">Days on floor</span><span class="v" id="d-daysonfloor"></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ADD VEHICLE VIEW ============ -->
+  <section id="view-add" class="view">
+    <div class="section-title">Add a vehicle to inventory</div>
+    <p class="tip-text">This becomes the official report every salesman reads from — the more complete and accurate it is, the fewer times you'll get pulled out of a meeting to answer a question about it. This page is only for capturing a brand-new vehicle; to change details later, open the vehicle's report and use Edit.</p>
+    <form class="intake" id="intake-form">
+
       <fieldset>
-        <legend>Vehicle details</legend>
-        <div class="form-grid-2">
-          <div class="field"><label for="s-make">Make *</label><input id="s-make" placeholder="e.g. Volkswagen" required></div>
-          <div class="field"><label for="s-model">Model *</label><input id="s-model" placeholder="e.g. Polo Vivo" required></div>
-        </div>
-        <div class="form-grid-2">
-          <div class="field"><label for="s-year">Year *</label><input id="s-year" type="number" placeholder="e.g. 2019" min="1980" max="2027" required><div class="field-error" id="s-year-error">Please enter a year between 1980 and 2027.</div></div>
-          <div class="field"><label for="s-mileage">Mileage (km) *</label><input id="s-mileage" type="number" placeholder="e.g. 78000" min="0" max="900000" required><div class="field-error" id="s-mileage-error">Please enter a mileage between 0 and 900,000 km.</div></div>
-        </div>
-        <div class="form-grid-2">
-          <div class="field"><label for="s-color">Colour</label><input id="s-color" placeholder="e.g. Grey"></div>
-          <div class="field"><label for="s-price">Your asking price (R) <span class="hint">— optional</span></label><input id="s-price" type="number" placeholder="e.g. 185000"></div>
+        <legend>Placement</legend>
+        <div class="form-grid">
+          <div class="field">
+            <label for="f-branch">Branch / location *</label>
+            <select id="f-branch" required>
+              <option value="">Select branch</option>
+              <option value="PMB">PMB</option>
+              <option value="Richards Bay">Richards Bay</option>
+              <option value="Durban">Durban</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-status">Stock status *</label>
+            <select id="f-status" required>
+              <option value="Available">Available</option>
+              <option value="Reserved">Reserved</option>
+              <option value="Sold">Sold</option>
+            </select>
+          </div>
         </div>
       </fieldset>
 
       <fieldset>
-        <legend>Condition</legend>
-        <div class="field">
-          <label for="s-condition">Any damage, mechanical issues, or things we should know? <span class="hint">— optional, but be honest, it helps us give you a fair offer</span></label>
-          <textarea id="s-condition" placeholder="e.g. Small dent on rear bumper, otherwise no known issues."></textarea>
+        <legend>Identity</legend>
+        <div class="form-grid">
+          <div class="field"><label for="f-make">Make *</label><input id="f-make" required placeholder="e.g. Toyota"></div>
+          <div class="field"><label for="f-model">Model *</label><input id="f-model" required placeholder="e.g. Hilux"></div>
+          <div class="field"><label for="f-variant">Variant / trim</label><input id="f-variant" placeholder="e.g. 2.8 GD-6 Raider"></div>
+          <div class="field"><label for="f-year">Year *</label><input id="f-year" type="number" required placeholder="e.g. 2022"></div>
+          <div class="field"><label for="f-color">Color</label><input id="f-color" placeholder="e.g. Grey"></div>
+          <div class="field">
+            <label for="f-vin">VIN / Registration</label>
+            <input id="f-vin" placeholder="e.g. ND 12 AB GP">
+            <div class="warn-text" id="f-vin-warning" style="display:none;">This VIN/registration already exists on another vehicle — please double check before saving.</div>
+          </div>
         </div>
       </fieldset>
 
       <fieldset>
-        <legend>Photos *</legend>
-        <div class="photo-zone">
-          <div class="icon">📷</div>
-          <div class="label">Add photos of your car</div>
-          <div class="sub">At least 3 photos — more helps us assess it faster</div>
-          <label class="photo-zone-btn">Choose photos<input type="file" id="s-photos" accept="image/*" capture="environment" multiple></label>
+        <legend>Commercial</legend>
+        <div class="form-grid">
+          <div class="field"><label for="f-price">Price (ZAR) *</label><input id="f-price" type="number" required placeholder="e.g. 549000"></div>
+          <div class="field"><label for="f-cost">Cost price (ZAR)</label><input id="f-cost" type="number" placeholder="e.g. 478000"></div>
+          <div class="field"><label for="f-listing">Listing type</label>
+            <select id="f-listing">
+              <option>Used</option><option>New</option><option>Demo</option>
+            </select>
+          </div>
+          <div class="field"><label for="f-mileage">Mileage (km)</label><input id="f-mileage" type="number" placeholder="e.g. 45000"></div>
+        </div>
+        <p class="tip-text" style="margin-top:6px;">Cost price and profit are for internal dealership use — not shown to customers, and used only for the vehicle's own report.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Mechanical</legend>
+        <div class="form-grid">
+          <div class="field"><label for="f-trans">Transmission</label>
+            <select id="f-trans"><option>Manual</option><option>Automatic</option></select>
+          </div>
+          <div class="field"><label for="f-fuel">Fuel type</label>
+            <select id="f-fuel"><option>Petrol</option><option>Diesel</option><option>Hybrid</option><option>Electric</option></select>
+          </div>
+          <div class="field"><label for="f-engine">Engine size</label><input id="f-engine" placeholder="e.g. 2.8L"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Description &amp; features</legend>
+        <div class="form-grid full">
+          <div class="field">
+            <label for="f-description">Salesman-facing description</label>
+            <textarea id="f-description" placeholder="Overview a salesman can read straight to a client..."></textarea>
+          </div>
+          <div class="field">
+            <label for="f-features">Features / spec <span class="hint">(comma separated)</span></label>
+            <input id="f-features" placeholder="e.g. Reverse camera, Leather seats, Tow bar, Cruise control">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Areas of concern &amp; add-ons</legend>
+        <div class="form-grid full">
+          <div class="field">
+            <label for="f-concerns">Areas of concern <span class="hint">(disclose anything a salesman must flag to a buyer)</span></label>
+            <textarea id="f-concerns" placeholder="e.g. Small dent rear bumper, service due in 2,000km..."></textarea>
+          </div>
+          <div class="field">
+            <label for="f-addons">Add-ons / extras fitted <span class="hint">(comma separated)</span></label>
+            <input id="f-addons" placeholder="e.g. Tow bar, Mags, Tinted windows, Extended warranty">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Photos — minimum 5 required</legend>
+        <p class="tip-text" style="margin-top:-4px;">A good set covers the front, side, interior, odometer, and any damage or wear — that's usually enough for a salesman to answer most client questions without seeing the car in person.</p>
+        <div class="photo-capture-area">
+          <button type="button" class="capture-btn" id="btn-take-photo">Take Photo (camera)</button>
+          <button type="button" class="capture-btn" id="btn-upload-photo">Upload from Gallery</button>
+          <input type="file" id="file-camera" accept="image/*" capture="environment" style="display:none" multiple>
+          <input type="file" id="file-gallery" accept="image/*" style="display:none" multiple>
         </div>
         <div class="photo-preview-grid" id="photo-preview-grid"></div>
-        <div class="photo-count-note" id="photo-count-note">0 of 3 minimum photos added</div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Your details</legend>
-        <div class="form-grid-2">
-          <div class="field"><label for="s-name">Your name *</label><input id="s-name" placeholder="e.g. John Dlamini" required></div>
-          <div class="field"><label for="s-phone">WhatsApp / phone number *</label><input id="s-phone" type="tel" placeholder="e.g. 082 123 4567" required></div>
-        </div>
-        <p class="privacy-line">🔒 Your information is kept private and is only seen by our team — never shared or sold.</p>
+        <div class="photo-counter bad" id="photo-counter">0 of 5 minimum photos captured</div>
       </fieldset>
 
       <div class="submit-row">
-        <button type="submit" class="btn-submit" id="submit-btn" disabled>Submit</button>
-        <div class="submit-note">By submitting, you agree to be contacted by Jeremiah's Auto about your vehicle.</div>
+        <button type="submit" id="submit-btn" disabled>Save vehicle to inventory</button>
+        <span class="submit-note">Save is disabled until branch, required fields, and 5+ photos are provided.</span>
       </div>
     </form>
-  </div>
-</section>
+  </section>
 
-<!-- ============ CONFIRMATION ============ -->
-<section id="view-confirm" class="view">
-  <div class="confirm-page">
-    <div class="confirm-check">&#10003;</div>
-    <h1 id="confirm-heading">Thanks — we've got your car.</h1>
-    <p class="lede">Keep your reference number below. We'll be in touch shortly.</p>
-    <div class="ticket">
-      <div class="row"><span class="k">Reference</span></div>
-      <div class="ref" id="confirm-ref">#0000</div>
-      <div class="perf"></div>
-      <div class="seller-name" id="confirm-name"></div>
-      <div class="row"><span class="k" id="confirm-car"></span></div>
-    </div>
-    <button class="btn-secondary" id="btn-done">Back to home</button>
-  </div>
-</section>
-
-<!-- ============ ADMIN GATE ============ -->
-<section id="view-gate" class="view">
-  <div class="gate-page">
-    <h1>Admin access</h1>
-    <p>This area is restricted to Jeremiah's Auto staff.</p>
-    <div class="gate-error" id="gate-error">Incorrect passcode. Try again.</div>
-    <input type="password" id="gate-passcode" placeholder="Enter passcode">
-    <button class="btn-sell" id="gate-submit" style="width:100%;">Enter</button>
-    <div class="demo-note">Demo note: this is a simple placeholder gate to show the concept. A real build would use proper staff logins, enforced by the backend — not just this screen — so one submitter can never see another's information.</div>
-  </div>
-</section>
-
-<!-- ============ ADMIN DASHBOARD ============ -->
-<section id="view-admin" class="view">
-  <div class="admin-banner">Admin only — not visible to the public</div>
-  <div class="admin-page">
-    <div class="admin-header">
-      <div>
-        <h1>Car submissions</h1>
-        <p class="lede">Every "Sell My Car" submission comes through here — visible only on this screen.</p>
-      </div>
-      <button class="admin-logout" id="admin-logout">Exit admin view</button>
-    </div>
-    <div class="admin-filter-row">
-      <input type="text" id="admin-search" placeholder="Search by name, make, or model...">
-      <select id="admin-status-filter">
-        <option value="">All statuses</option>
-        <option>New</option>
-        <option>Contacted</option>
-        <option>Offer Made</option>
-        <option>Purchased</option>
-        <option>Declined</option>
-      </select>
-    </div>
-    <div id="submission-list"></div>
-  </div>
-</section>
-
-<!-- ============ ADMIN DETAIL ============ -->
-<section id="view-admin-detail" class="view">
-  <div class="admin-banner">Admin only — not visible to the public</div>
-  <div class="detail-page">
-    <button class="back-link" id="back-to-admin-list" style="margin-top:20px;">&larr; Back to all submissions</button>
-    <div class="admin-header">
-      <div>
-        <h1 id="ad-ref-heading">#0000</h1>
-        <p class="lede" id="ad-submitted-note"></p>
-      </div>
-    </div>
-    <div class="detail-grid">
-      <div>
-        <div class="detail-card">
-          <h3>Photos</h3>
-          <div class="detail-photos" id="ad-photos"></div>
+  <!-- ============ SALES LEADERBOARD VIEW ============ -->
+  <section id="view-leaderboard" class="view">
+    <div class="lb-page">
+      <div class="lb-header">
+        <div>
+          <div class="lb-title">SALES LEADERBOARD</div>
+          <div class="lb-subtitle">Ranked by vehicles sold, active leads being worked, and follow-up discipline — pulled straight from real inventory and comment activity, nothing entered by hand.</div>
         </div>
-        <div class="detail-card">
-          <h3>Condition notes</h3>
-          <div class="condition-note" id="ad-condition"></div>
-        </div>
-      </div>
-      <div>
-        <div class="detail-card">
-          <h3>Vehicle</h3>
-          <div class="detail-row"><span class="k">Make &amp; model</span><span class="v" id="ad-make-model"></span></div>
-          <div class="detail-row"><span class="k">Year</span><span class="v" id="ad-year"></span></div>
-          <div class="detail-row"><span class="k">Mileage</span><span class="v" id="ad-mileage"></span></div>
-          <div class="detail-row"><span class="k">Colour</span><span class="v" id="ad-color"></span></div>
-          <div class="detail-row"><span class="k">Asking price</span><span class="v" id="ad-price"></span></div>
-        </div>
-        <div class="detail-card">
-          <h3>Seller</h3>
-          <div class="detail-row"><span class="k">Name</span><span class="v" id="ad-name"></span></div>
-          <div class="detail-row"><span class="k">Phone</span><span class="v" id="ad-phone"></span></div>
-        </div>
-        <div class="detail-card">
-          <h3>Status</h3>
-          <select class="status-select" id="ad-status-select">
-            <option>New</option>
-            <option>Contacted</option>
-            <option>Offer Made</option>
-            <option>Purchased</option>
-            <option>Declined</option>
+        <div class="lb-controls">
+          <select id="lb-period">
+            <option value="month">This month</option>
+            <option value="alltime">All time</option>
           </select>
-          <a class="btn-whatsapp" id="ad-whatsapp-btn" target="_blank" rel="noopener">Message on WhatsApp</a>
+          <select id="lb-branch-scope">
+            <option value="all">All branches</option>
+            <option value="PMB">PMB</option>
+            <option value="Richards Bay">Richards Bay</option>
+            <option value="Durban">Durban</option>
+          </select>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+      <div class="lb-sync-note"><span class="lb-sync-dot"></span>Live — synced with current inventory, sales records, and comment history</div>
 
-<!-- ============ PHOTO LIGHTBOX ============ -->
-<div class="lightbox" id="lightbox">
-  <button class="lightbox-close" id="lightbox-close">&times;</button>
-  <img id="lightbox-img" src="" alt="Full-size vehicle photo">
-</div>
+      <div id="lb-podium" class="lb-podium"></div>
+      <div class="lb-table-wrap">
+        <table class="lb-table">
+          <thead>
+            <tr><th>Rank</th><th>Salesperson</th><th>Branch</th><th>Vehicles sold</th><th>Active leads</th><th>Overdue follow-ups</th></tr>
+          </thead>
+          <tbody id="lb-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EDIT VEHICLE VIEW ============ -->
+  <section id="view-edit" class="view">
+    <div class="section-title">Edit vehicle record</div>
+    <p class="tip-text">You're editing the official report for this vehicle. Save changes updates it for every branch to see; Cancel discards what you've changed and returns to the report.</p>
+    <form class="intake" id="edit-form">
+
+      <fieldset>
+        <legend>Placement</legend>
+        <div class="form-grid">
+          <div class="field">
+            <label for="e-branch">Branch / location *</label>
+            <select id="e-branch" required>
+              <option value="PMB">PMB</option>
+              <option value="Richards Bay">Richards Bay</option>
+              <option value="Durban">Durban</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="e-status">Stock status *</label>
+            <select id="e-status" required>
+              <option value="Available">Available</option>
+              <option value="Reserved">Reserved</option>
+              <option value="Sold">Sold</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Identity</legend>
+        <div class="form-grid">
+          <div class="field"><label for="e-make">Make *</label><input id="e-make" required></div>
+          <div class="field"><label for="e-model">Model *</label><input id="e-model" required></div>
+          <div class="field"><label for="e-variant">Variant / trim</label><input id="e-variant"></div>
+          <div class="field"><label for="e-year">Year *</label><input id="e-year" type="number" required></div>
+          <div class="field"><label for="e-color">Color</label><input id="e-color"></div>
+          <div class="field">
+            <label for="e-vin">VIN / Registration</label>
+            <input id="e-vin">
+            <div class="warn-text" id="e-vin-warning" style="display:none;">This VIN/registration already exists on another vehicle — please double check before saving.</div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Commercial</legend>
+        <div class="form-grid">
+          <div class="field"><label for="e-price">Price (ZAR) *</label><input id="e-price" type="number" required></div>
+          <div class="field"><label for="e-cost">Cost price (ZAR)</label><input id="e-cost" type="number"></div>
+          <div class="field"><label for="e-listing">Listing type</label>
+            <select id="e-listing"><option>Used</option><option>New</option><option>Demo</option></select>
+          </div>
+          <div class="field"><label for="e-mileage">Mileage (km)</label><input id="e-mileage" type="number"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Mechanical</legend>
+        <div class="form-grid">
+          <div class="field"><label for="e-trans">Transmission</label>
+            <select id="e-trans"><option>Manual</option><option>Automatic</option></select>
+          </div>
+          <div class="field"><label for="e-fuel">Fuel type</label>
+            <select id="e-fuel"><option>Petrol</option><option>Diesel</option><option>Hybrid</option><option>Electric</option></select>
+          </div>
+          <div class="field"><label for="e-engine">Engine size</label><input id="e-engine"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Description &amp; features</legend>
+        <div class="form-grid full">
+          <div class="field"><label for="e-description">Salesman-facing description</label><textarea id="e-description"></textarea></div>
+          <div class="field"><label for="e-features">Features / spec <span class="hint">(comma separated)</span></label><input id="e-features"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Areas of concern &amp; add-ons</legend>
+        <div class="form-grid full">
+          <div class="field"><label for="e-concerns">Areas of concern</label><textarea id="e-concerns"></textarea></div>
+          <div class="field"><label for="e-addons">Add-ons / extras fitted <span class="hint">(comma separated)</span></label><input id="e-addons"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Photos — minimum 5 required</legend>
+        <div class="photo-capture-area">
+          <button type="button" class="capture-btn" id="ebtn-take-photo">Take Photo (camera)</button>
+          <button type="button" class="capture-btn" id="ebtn-upload-photo">Upload from Gallery</button>
+          <input type="file" id="efile-camera" accept="image/*" capture="environment" style="display:none" multiple>
+          <input type="file" id="efile-gallery" accept="image/*" style="display:none" multiple>
+        </div>
+        <div class="photo-preview-grid" id="edit-photo-preview-grid"></div>
+        <div class="photo-counter" id="edit-photo-counter"></div>
+      </fieldset>
+
+      <div class="submit-row">
+        <button type="submit" id="edit-submit-btn">Save changes</button>
+        <button type="button" class="secondary" id="edit-cancel-btn">Cancel</button>
+        <span class="submit-note">Changes are saved back to this same vehicle record.</span>
+      </div>
+    </form>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
 
 <script>
-// =====================================================================
-// SELL MY CAR — standalone demo for Jeremiah's Auto
-// Completely independent from the separate inventory system file.
-//
-// PERSISTENCE, disclosed honestly: submissions are now saved to this
-// browser's localStorage, so they survive a page refresh or closing and
-// reopening the file — as long as it's the same browser on the same
-// device. This is NOT the same as a real backend: it only lives on this
-// one device, in this one browser, and isn't visible to anyone else,
-// anywhere else. A real launch needs a proper backend (e.g. Supabase) so
-// data is shared and durable across devices — this is just enough to
-// make demoing this to the client feel solid, not a reset every time.
-//
-// PHOTOS, disclosed honestly: photos are now genuinely captured and
-// shown (resized down in the browser before storing, so a handful of
-// real phone photos don't blow past the browser's storage limit). This
-// works well for a demo's worth of submissions. It is still not real
-// cloud photo storage — a real launch needs photos uploaded to an actual
-// server/bucket, not sitting in browser storage.
-//
-// The admin passcode gate is a placeholder to show the CONCEPT of
-// restricted access, not real security — anyone who reads the page
-// source can see it. A real build needs proper staff logins enforced by
-// the backend, with rules ensuring a submitter can never read back
-// their own or anyone else's entry — not just a login screen bolted
-// onto the front end.
-// =====================================================================
+// ---------------------------------------------------------------
+// IN-MEMORY DATA STORE (prototype only — resets on page reload;
+// this is where a real database/API call would plug in later)
+// ---------------------------------------------------------------
+const BRANCHES = ["PMB", "Richards Bay", "Durban"];
+const CATEGORY_LABELS = {
+  Interested: "Interested", NotInterested: "Not interested", Potential: "Potential — following up",
+  TestDrive: "Test drive scheduled", OnHold: "Deal on hold", SoldClosed: "Sold / closed"
+};
 
-const STORAGE_KEY_SUBMISSIONS = "jeremiahsauto_sellmycar_submissions";
-const STORAGE_KEY_NEXTREF = "jeremiahsauto_sellmycar_nextref";
-const DEMO_PASSCODE = "1234";
-const MAX_PHOTO_DIMENSION = 900; // px, longest side, before storing
-const PHOTO_QUALITY = 0.72;
+function daysAgo(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0, 10);
+}
 
-let submissions = loadSubmissions();
-let nextRef = loadNextRef();
-let stagedPhotos = []; // array of { name, dataUrl }
+// Fake demo staff — names, numbers, and emails below are all fictional
+// placeholders for prototype purposes only, not real people.
+const STAFF = {
+  "J. Naidoo": { phone: "071 234 5678", email: "jnaidoo@gmail.com", branch: "PMB" },
+  "S. Khumalo": { phone: "072 345 6789", email: "skhumalo@gmail.com", branch: "Richards Bay" },
+  "T. Mokoena": { phone: "073 456 7890", email: "tmokoena@gmail.com", branch: "Durban" },
+  "N. Dlamini": { phone: "074 567 8901", email: "ndlamini@gmail.com", branch: "Durban" }
+};
+
+let vehicles = [
+  {
+    id: 1, branch: "PMB", make: "Toyota", model: "Hilux", variant: "2.8 GD-6 Raider", year: 2022,
+    color: "Grey", vin: "ND 12 AB GP", price: 549000, costPrice: 478000, status: "Available", listing: "Used",
+    mileage: 45000, transmission: "Automatic", fuel: "Diesel", engine: "2.8L",
+    description: "Well-maintained single-owner Hilux, full service history, ready for immediate test drive.",
+    features: "Reverse camera, Cruise control, Leather seats, Tow bar",
+    concerns: "Minor stone chip on windscreen — not obstructing view.",
+    addons: "Tow bar, Canopy, Mags",
+    capturedBy: "J. Naidoo", capturedDate: daysAgo(12), photos: 5, archived: false, priceHistory: [],
+    comments: [
+      { id: 1, category: "Interested", salesman: "J. Naidoo", contact: "071 234 5678", text: "Client John very interested, waiting on trade-in valuation.", date: daysAgo(2), followUpDate: daysAgo(-2) }
+    ],
+    activityLog: [ { date: daysAgo(12), action: "Vehicle captured by J. Naidoo" } ]
+  },
+  {
+    id: 4, branch: "PMB", make: "Suzuki", model: "Swift", variant: "1.2 GL", year: 2023,
+    color: "Red", vin: "PMB 1123", price: 199500, costPrice: 169000, status: "Available", listing: "New",
+    mileage: 8, transmission: "Manual", fuel: "Petrol", engine: "1.2L",
+    description: "Brand new demo unit, still under full manufacturer warranty.",
+    features: "Air conditioning, Bluetooth, Reverse camera",
+    concerns: "", addons: "",
+    capturedBy: "J. Naidoo", capturedDate: daysAgo(3), photos: 5, archived: false, priceHistory: [],
+    comments: [], activityLog: [ { date: daysAgo(3), action: "Vehicle captured by J. Naidoo" } ]
+  },
+  {
+    id: 5, branch: "PMB", make: "Nissan", model: "NP200", variant: "1.6i Pace", year: 2019,
+    color: "White", vin: "PMB 7742", price: 175000, costPrice: 149000, status: "Available", listing: "Used",
+    mileage: 96000, transmission: "Manual", fuel: "Petrol", engine: "1.6L",
+    description: "Reliable half-tonne bakkie, ideal for a small business buyer. Full-house condition.",
+    features: "Load bin liner, Radio/USB, Central locking",
+    concerns: "Small oil seep noted at last service — flagged for buyer disclosure.",
+    addons: "Canopy, Load bin liner",
+    capturedBy: "J. Naidoo", capturedDate: daysAgo(20), photos: 5, archived: false, priceHistory: [],
+    comments: [], activityLog: [ { date: daysAgo(20), action: "Vehicle captured by J. Naidoo" } ]
+  },
+  {
+    id: 2, branch: "Richards Bay", make: "VW", model: "Polo Vivo", variant: "1.4 Comfortline", year: 2021,
+    color: "White", vin: "RBY 4521", price: 219000, costPrice: 186000, status: "Available", listing: "Used",
+    mileage: 62000, transmission: "Manual", fuel: "Petrol", engine: "1.4L",
+    description: "Economical daily driver, low running costs, excellent for a first-time buyer.",
+    features: "Air conditioning, Bluetooth, Electric windows",
+    concerns: "", addons: "Tinted windows",
+    capturedBy: "S. Khumalo", capturedDate: daysAgo(50), photos: 6, archived: false, priceHistory: [],
+    comments: [], activityLog: [ { date: daysAgo(50), action: "Vehicle captured by S. Khumalo" } ]
+  },
+  {
+    id: 6, branch: "Richards Bay", make: "Hyundai", model: "i20", variant: "1.4 Fluid", year: 2020,
+    color: "Blue", vin: "RBY 9910", price: 229000, costPrice: 194000, status: "Available", listing: "Used",
+    mileage: 54000, transmission: "Automatic", fuel: "Petrol", engine: "1.4L",
+    description: "Neat, well-cared-for hatchback with full service history at agents.",
+    features: "Touchscreen infotainment, Reverse camera, Air conditioning",
+    concerns: "", addons: "",
+    capturedBy: "S. Khumalo", capturedDate: daysAgo(18), photos: 5, archived: false, priceHistory: [],
+    comments: [
+      { id: 1, category: "TestDrive", salesman: "S. Khumalo", contact: "072 345 6789", text: "Test drive booked for Saturday morning with a young couple.", date: daysAgo(1), followUpDate: daysAgo(-3) }
+    ],
+    activityLog: [ { date: daysAgo(18), action: "Vehicle captured by S. Khumalo" } ]
+  },
+  {
+    id: 7, branch: "Richards Bay", make: "Isuzu", model: "D-Max", variant: "250 Single Cab", year: 2021,
+    color: "Grey", vin: "RBY 3387", price: 359000, costPrice: 306000, status: "Available", listing: "Used",
+    mileage: 71000, transmission: "Manual", fuel: "Diesel", engine: "2.5L",
+    description: "Tough single-cab workhorse, well maintained, ready to work from day one.",
+    features: "Tow bar, Bull bar, Radio/USB",
+    concerns: "Front tyres due for replacement within 10,000km.",
+    addons: "Bull bar, Tow bar, Canopy",
+    capturedBy: "S. Khumalo", capturedDate: daysAgo(6), photos: 5, archived: false, priceHistory: [],
+    comments: [
+      { id: 1, category: "Potential", salesman: "S. Khumalo", contact: "072 345 6789", text: "Client said he'd decide by Monday — need to call and confirm.", date: daysAgo(6), followUpDate: daysAgo(3) }
+    ],
+    activityLog: [ { date: daysAgo(6), action: "Vehicle captured by S. Khumalo" } ]
+  },
+  {
+    id: 3, branch: "Durban", make: "Ford", model: "Ranger", variant: "3.2 Wildtrak", year: 2020,
+    color: "Blue", vin: "DBN 8890", price: 469000, costPrice: 399000, status: "Reserved", listing: "Used",
+    mileage: 78000, transmission: "Automatic", fuel: "Diesel", engine: "3.2L",
+    description: "Top-spec Wildtrak, currently reserved pending finance approval.",
+    features: "Leather seats, Sunroof, Reverse camera, Cruise control, Roll bar",
+    concerns: "Rear tyres at 40% tread — recommend replacement within 5,000km.",
+    addons: "Roll bar, Side steps, Deck liner",
+    capturedBy: "T. Mokoena", capturedDate: daysAgo(9), photos: 5, archived: false,
+    priceHistory: [ { date: daysAgo(5), oldPrice: 489000, newPrice: 469000 } ],
+    comments: [
+      { id: 1, category: "OnHold", salesman: "T. Mokoena", contact: "073 456 7890", text: "Waiting on customer's finance approval from bank, expected this week.", date: daysAgo(3), followUpDate: daysAgo(-1) },
+      { id: 2, category: "Potential", salesman: "N. Dlamini", contact: "074 567 8901", text: "Second client also asked about this exact vehicle — call T. Mokoena before promising availability.", date: daysAgo(1), followUpDate: null }
+    ],
+    activityLog: [ { date: daysAgo(9), action: "Vehicle captured by T. Mokoena" }, { date: daysAgo(4), action: "Status changed to Reserved by T. Mokoena" } ]
+  },
+  {
+    id: 8, branch: "Durban", make: "Kia", model: "Sportage", variant: "2.0 Ignite", year: 2019,
+    color: "Black", vin: "DBN 5521", price: 329000, costPrice: 279000, status: "Available", listing: "Used",
+    mileage: 68000, transmission: "Automatic", fuel: "Petrol", engine: "2.0L",
+    description: "Family SUV in excellent condition, low mileage for its age, spacious boot.",
+    features: "Leather seats, Sunroof, Reverse camera, Cruise control",
+    concerns: "", addons: "Tow bar",
+    capturedBy: "T. Mokoena", capturedDate: daysAgo(30), photos: 5, archived: false, priceHistory: [],
+    comments: [], activityLog: [ { date: daysAgo(30), action: "Vehicle captured by T. Mokoena" } ]
+  },
+  {
+    id: 9, branch: "Durban", make: "Renault", model: "Kwid", variant: "1.0 Dynamique", year: 2022,
+    color: "Orange", vin: "DBN 1290", price: 145000, costPrice: 122000, status: "Available", listing: "Used",
+    mileage: 22000, transmission: "Manual", fuel: "Petrol", engine: "1.0L",
+    description: "Compact, economical first car, still under balance of manufacturer warranty.",
+    features: "Touchscreen infotainment, Air conditioning",
+    concerns: "", addons: "",
+    capturedBy: "N. Dlamini", capturedDate: daysAgo(4), photos: 5, archived: false, priceHistory: [],
+    comments: [
+      { id: 1, category: "Interested", salesman: "N. Dlamini", contact: "074 567 8901", text: "Young client, first car — comparing against a similar Picanto at another dealer.", date: daysAgo(1), followUpDate: daysAgo(-2) }
+    ],
+    activityLog: [ { date: daysAgo(4), action: "Vehicle captured by N. Dlamini" } ]
+  },
+  // ---- Historical sold vehicles — archived from active stock, kept for the
+  // sales leaderboard and dealership sales history. These do not affect the
+  // "3 vehicles per branch" active inventory counts. ----
+  {
+    id: 10, branch: "PMB", make: "Toyota", model: "Corolla", variant: "1.8 Exclusive", year: 2021,
+    color: "Silver", vin: "PMB 4410", price: 289000, costPrice: 245000, status: "Sold", listing: "Used",
+    mileage: 51000, transmission: "Automatic", fuel: "Petrol", engine: "1.8L",
+    description: "Sold — clean single-owner Corolla, full service history.",
+    features: "Reverse camera, Cruise control, Touchscreen infotainment",
+    concerns: "", addons: "",
+    capturedBy: "J. Naidoo", capturedDate: daysAgo(28), photos: 5, archived: true, priceHistory: [],
+    soldBy: "J. Naidoo", soldDate: daysAgo(15),
+    comments: [], activityLog: [
+      { date: daysAgo(28), action: "Vehicle captured by J. Naidoo" },
+      { date: daysAgo(15), action: "Marked as Sold by J. Naidoo" },
+      { date: daysAgo(15), action: "Archived by J. Naidoo" }
+    ]
+  },
+  {
+    id: 11, branch: "Richards Bay", make: "Toyota", model: "Corolla Cross", variant: "1.8 XR", year: 2022,
+    color: "White", vin: "RBY 6602", price: 379000, costPrice: 322000, status: "Sold", listing: "Used",
+    mileage: 33000, transmission: "Automatic", fuel: "Petrol", engine: "1.8L",
+    description: "Sold — low mileage, still under balance of manufacturer warranty.",
+    features: "Leather seats, Reverse camera, Cruise control",
+    concerns: "", addons: "",
+    capturedBy: "S. Khumalo", capturedDate: daysAgo(22), photos: 5, archived: true, priceHistory: [],
+    soldBy: "S. Khumalo", soldDate: daysAgo(11),
+    comments: [], activityLog: [
+      { date: daysAgo(22), action: "Vehicle captured by S. Khumalo" },
+      { date: daysAgo(11), action: "Marked as Sold by S. Khumalo" },
+      { date: daysAgo(11), action: "Archived by S. Khumalo" }
+    ]
+  },
+  {
+    id: 12, branch: "Richards Bay", make: "Ford", model: "EcoSport", variant: "1.0 Titanium", year: 2020,
+    color: "Blue", vin: "RBY 8814", price: 249000, costPrice: 210000, status: "Sold", listing: "Used",
+    mileage: 47000, transmission: "Manual", fuel: "Petrol", engine: "1.0L",
+    description: "Sold — well-maintained compact SUV, popular first-family vehicle.",
+    features: "Touchscreen infotainment, Reverse camera",
+    concerns: "", addons: "",
+    capturedBy: "S. Khumalo", capturedDate: daysAgo(16), photos: 5, archived: true, priceHistory: [],
+    soldBy: "S. Khumalo", soldDate: daysAgo(4),
+    comments: [], activityLog: [
+      { date: daysAgo(16), action: "Vehicle captured by S. Khumalo" },
+      { date: daysAgo(4), action: "Marked as Sold by S. Khumalo" },
+      { date: daysAgo(4), action: "Archived by S. Khumalo" }
+    ]
+  },
+  {
+    id: 13, branch: "Durban", make: "Nissan", model: "Navara", variant: "2.5 SE", year: 2019,
+    color: "Grey", vin: "DBN 2371", price: 419000, costPrice: 355000, status: "Sold", listing: "Used",
+    mileage: 82000, transmission: "Automatic", fuel: "Diesel", engine: "2.5L",
+    description: "Sold — tough double-cab, well cared for, new tyres fitted before sale.",
+    features: "Tow bar, Reverse camera, Cruise control",
+    concerns: "", addons: "Tow bar",
+    capturedBy: "T. Mokoena", capturedDate: daysAgo(35), photos: 5, archived: true, priceHistory: [],
+    soldBy: "T. Mokoena", soldDate: daysAgo(21),
+    comments: [], activityLog: [
+      { date: daysAgo(35), action: "Vehicle captured by T. Mokoena" },
+      { date: daysAgo(21), action: "Marked as Sold by T. Mokoena" },
+      { date: daysAgo(21), action: "Archived by T. Mokoena" }
+    ]
+  }
+];
+
+let nextId = 14;
+let nextCommentId = 100;
+let currentBranchFilter = null;
 let currentDetailId = null;
+const AGING_THRESHOLD_DAYS = 45;
 
-function loadSubmissions() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_SUBMISSIONS);
-    return raw ? JSON.parse(raw) : [];
-  } catch (err) {
-    console.warn("Could not load saved submissions, starting fresh.", err);
-    return [];
-  }
+function branchClass(branch) { return "branch-" + branch.replace(/\s+/g, "-"); }
+function daysOnFloor(capturedDate) {
+  const then = new Date(capturedDate);
+  const now = new Date();
+  return Math.max(0, Math.round((now - then) / 86400000));
 }
 
-function loadNextRef() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_NEXTREF);
-    return raw ? parseInt(raw, 10) : 1041;
-  } catch (err) {
-    return 1041;
-  }
+// Simple illustrative vehicle icon — stands in for a real captured photo.
+// Colored to roughly match the vehicle's recorded color.
+const ICON_COLOR_HEX = {
+  Grey: "#8a8f98", White: "#c9ccd1", Blue: "#3b6ea5", Red: "#b23b3b",
+  Black: "#3a3a3f", Silver: "#b6bcc4", Green: "#3f7a4d", Orange: "#c97a2b"
+};
+function carIcon(colorName) {
+  const hex = ICON_COLOR_HEX[colorName] || "#9aa0a6";
+  return `<svg viewBox="0 0 64 40" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vehicle photo placeholder">
+    <rect x="2" y="20" width="60" height="12" rx="4" fill="${hex}"/>
+    <path d="M12 20 L18 8 H46 L52 20 Z" fill="${hex}" opacity="0.85"/>
+    <rect x="21" y="10.5" width="9" height="7.5" fill="#eef2f5"/>
+    <rect x="32" y="10.5" width="9" height="7.5" fill="#eef2f5"/>
+    <circle cx="16" cy="33" r="5" fill="#2b2b2f"/>
+    <circle cx="48" cy="33" r="5" fill="#2b2b2f"/>
+  </svg>`;
 }
 
-function persist() {
-  try {
-    localStorage.setItem(STORAGE_KEY_SUBMISSIONS, JSON.stringify(submissions));
-    localStorage.setItem(STORAGE_KEY_NEXTREF, String(nextRef));
-    return true;
-  } catch (err) {
-    // Most likely a storage-quota issue (e.g. very many large photos).
-    // The submission still exists for the rest of this session — it
-    // just won't survive a refresh. Don't crash the flow over it.
-    console.warn("Could not save to this browser's storage (quota or private-browsing limit?).", err);
-    return false;
-  }
-}
-
-function showView(id) {
+// ---------------------------------------------------------------
+// NAVIGATION
+// ---------------------------------------------------------------
+function showView(name) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  window.scrollTo(0, 0);
+  document.getElementById("view-" + name).classList.add("active");
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  if (name === "dashboard") document.getElementById("nav-dashboard").classList.add("active");
+  if (name === "add") document.getElementById("nav-add").classList.add("active");
+  if (name === "leaderboard") document.getElementById("nav-leaderboard").classList.add("active");
+  document.getElementById("global-back-btn").style.display = (name === "dashboard") ? "none" : "inline-block";
 }
 
-// ---------- Landing -> Form ----------
-document.getElementById("btn-open-form").onclick = () => showView("view-form");
-document.getElementById("back-to-landing").onclick = () => showView("view-landing");
+document.getElementById("nav-dashboard").onclick = () => { navStack = []; showView("dashboard"); renderDashboard(); };
+document.getElementById("nav-add").onclick = () => { navStack.push(captureState()); showView("add"); };
+document.getElementById("nav-leaderboard").onclick = () => { navStack.push(captureState()); showView("leaderboard"); renderLeaderboard(); };
+document.getElementById("global-back-btn").onclick = () => goBack();
+document.getElementById("back-from-detail").onclick = () => goBack();
+document.getElementById("back-from-branch").onclick = () => goBack();
 
-// ---------- Photo staging: read + resize each photo, then store as a
-// real data URL so it can actually be displayed later, in this session
-// and after a reload. ----------
-function resizePhoto(file) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        // Guard: if the browser couldn't determine real dimensions for
-        // any reason, fall back to storing the original data URL rather
-        // than risk a broken 0x0 canvas.
-        if (!img.width || !img.height) {
-          resolve(e.target.result);
-          return;
-        }
-        const scale = Math.min(1, MAX_PHOTO_DIMENSION / Math.max(img.width, img.height));
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        try {
-          resolve(canvas.toDataURL("image/jpeg", PHOTO_QUALITY));
-        } catch (err) {
-          resolve(e.target.result);
-        }
+document.getElementById("view-archive-link").onclick = () => {
+  navStack.push(captureState());
+  showView("archive");
+  renderVehicleList(vehicles.filter(v => v.archived), "archive-vehicle-list");
+};
+document.getElementById("back-from-archive").onclick = () => goBack();
+
+// ---------------------------------------------------------------
+// NAVIGATION HISTORY — lets Back return to the exact page the user
+// came from. Each view (dashboard / branch / archive) keeps its own
+// inputs and filters live in the DOM while hidden, so restoring a
+// view just means showing it again and re-running its own search.
+// ---------------------------------------------------------------
+let navStack = [];
+
+function captureState() {
+  const activeEl = document.querySelector(".view.active");
+  return { view: activeEl.id.replace("view-", ""), scrollY: window.scrollY };
+}
+
+function restoreState(state) {
+  switch (state.view) {
+    case "archive":
+      showView("archive");
+      renderVehicleList(vehicles.filter(v => v.archived), "archive-vehicle-list");
+      break;
+    case "branch":
+      showView("branch");
+      runBranchSearch();
+      break;
+    case "detail":
+      openDetail(currentDetailId, false);
+      break;
+    case "leaderboard":
+      showView("leaderboard");
+      renderLeaderboard();
+      break;
+    case "dashboard":
+      showView("dashboard");
+      renderBranchTiles();
+      runGlobalSearch();
+      renderFollowUps();
+      document.getElementById("followup-list-wrap").style.display = followUpsExpanded ? "block" : "none";
+      document.getElementById("followup-chevron").classList.toggle("open", followUpsExpanded);
+      renderAgingStock();
+      document.getElementById("aging-list-wrap").style.display = agingExpanded ? "block" : "none";
+      document.getElementById("aging-chevron").classList.toggle("open", agingExpanded);
+      renderHeatmap();
+      break;
+    default:
+      // "add" and "edit" are transient forms and should never be a
+      // destination to go back to — fall back to a safe dashboard.
+      showView("dashboard");
+      renderDashboard();
+  }
+  window.scrollTo(0, state.scrollY || 0);
+}
+
+function goBack() {
+  if (navStack.length === 0) { showView("dashboard"); renderDashboard(); return; }
+  restoreState(navStack.pop());
+}
+
+// ---------------------------------------------------------------
+// DASHBOARD
+// ---------------------------------------------------------------
+function activeVehicles() { return vehicles.filter(v => !v.archived); }
+
+// ---------------------------------------------------------------
+// SALES LEADERBOARD — every number here is computed live from the
+// same vehicles/comments data used everywhere else in the app.
+// Nothing is entered or hardcoded specifically for this view.
+// ---------------------------------------------------------------
+document.getElementById("lb-period").addEventListener("change", renderLeaderboard);
+document.getElementById("lb-branch-scope").addEventListener("change", renderLeaderboard);
+
+function computeLeaderboardStats(period, branchScope) {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const thisMonthKey = todayStr.slice(0, 7);
+
+  return Object.keys(STAFF)
+    .filter(name => branchScope === "all" || STAFF[name].branch === branchScope)
+    .map(name => {
+      const soldVehicles = vehicles.filter(v => {
+        if (v.soldBy !== name || !v.soldDate) return false;
+        if (period === "month") return v.soldDate.slice(0, 7) === thisMonthKey;
+        return true;
+      });
+
+      const activeLeadVehicles = activeVehicles().filter(v =>
+        (v.comments || []).some(c => c.salesman === name && c.category !== "SoldClosed" && c.category !== "NotInterested")
+      );
+
+      const overdueCount = activeVehicles().reduce((acc, v) =>
+        acc + (v.comments || []).filter(c => c.salesman === name && c.followUpDate && c.followUpDate < todayStr).length, 0);
+
+      return {
+        name,
+        branch: STAFF[name].branch,
+        sold: soldVehicles.length,
+        activeLeads: activeLeadVehicles.length,
+        overdue: overdueCount
       };
-      img.onerror = () => resolve(e.target.result);
-      img.src = e.target.result;
-    };
-    reader.onerror = () => resolve(null);
-    reader.readAsDataURL(file);
+    })
+    .sort((a, b) => b.sold - a.sold || b.activeLeads - a.activeLeads || a.overdue - b.overdue);
+}
+
+function renderLeaderboard() {
+  const period = document.getElementById("lb-period").value;
+  const branchScope = document.getElementById("lb-branch-scope").value;
+  const stats = computeLeaderboardStats(period, branchScope);
+
+  const podiumEl = document.getElementById("lb-podium");
+  const tbody = document.getElementById("lb-table-body");
+  podiumEl.innerHTML = "";
+  tbody.innerHTML = "";
+
+  if (stats.length === 0) {
+    podiumEl.style.display = "none";
+    tbody.innerHTML = `<tr><td colspan="6"><div class="lb-empty">No salespeople match this branch filter.</div></td></tr>`;
+    return;
+  }
+
+  podiumEl.style.display = "grid";
+  const top3 = stats.slice(0, 3);
+  // Visual podium order: 2nd, 1st, 3rd (1st in the center, taller)
+  const order = top3.length === 3 ? [1, 0, 2] : top3.map((_, i) => i);
+  const medalSymbol = ["1", "2", "3"];
+
+  order.forEach(idx => {
+    if (!top3[idx]) return;
+    const s = top3[idx];
+    const rank = idx + 1;
+    const card = document.createElement("div");
+    card.className = `lb-podium-card rank-${rank}`;
+    card.innerHTML = `
+      <div class="lb-medal">${medalSymbol[idx]}</div>
+      <div class="lb-name">${s.name}</div>
+      <div class="lb-branch-tag">${s.branch}</div>
+      <div class="lb-headline-num">${s.sold}</div>
+      <div class="lb-headline-cap">Vehicles sold</div>
+      <div class="lb-mini-stats">
+        <div class="lb-mini-stat"><div class="v">${s.activeLeads}</div><div class="l">Active leads</div></div>
+        <div class="lb-mini-stat"><div class="v ${s.overdue > 0 ? 'warn' : ''}">${s.overdue}</div><div class="l">Overdue</div></div>
+      </div>`;
+    podiumEl.appendChild(card);
+  });
+
+  stats.forEach((s, i) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td class="lb-rank-num">${i + 1}</td>
+      <td>${s.name}</td>
+      <td><span class="branch-chip ${branchClass(s.branch)}">${s.branch}</span></td>
+      <td class="num ${s.sold > 0 ? 'ok' : ''}">${s.sold}</td>
+      <td class="num">${s.activeLeads}</td>
+      <td class="num ${s.overdue > 0 ? 'warn' : ''}">${s.overdue}</td>`;
+    tbody.appendChild(row);
   });
 }
 
-async function handlePhotoFiles(e) {
-  const files = Array.from(e.target.files);
-  e.target.value = "";
-  for (const file of files) {
-    const dataUrl = await resizePhoto(file);
-    if (dataUrl) stagedPhotos.push({ name: file.name, dataUrl });
-    renderPhotoPreviews();
+
+function renderBranchTiles() {
+  const grid = document.getElementById("branch-grid");
+  grid.innerHTML = "";
+  const counts = {};
+  BRANCHES.forEach(branch => {
+    const count = activeVehicles().filter(v => v.branch === branch).length;
+    counts[branch] = count;
+    const tile = document.createElement("div");
+    tile.className = "branch-tile variant-black";
+    tile.style.borderTop = `4px solid ${BRANCH_CHART_COLORS[branch]}`;
+    tile.innerHTML = `
+      <div class="tile-content">
+        <div class="name">${branch}</div>
+        <div class="count">${count}</div>
+        <div class="label">vehicles in stock</div>
+        <div class="click-hint"><span class="hand-icon">👆</span>Tap to open</div>
+      </div>`;
+    tile.onclick = () => { navStack.push(captureState()); openBranch(branch); };
+    grid.appendChild(tile);
+  });
+  grid.appendChild(buildTotalDonutTile(counts));
+  document.getElementById("archive-count").textContent = vehicles.filter(v => v.archived).length;
+}
+
+// Builds a donut chart tile showing total active stock, split proportionally
+// by branch. Colors match each branch's chip color used everywhere else in
+// the app, so the chart visually ties straight back to the branch tiles.
+const BRANCH_CHART_COLORS = { "PMB": "#1f4e8a", "Richards Bay": "#1c7a3c", "Durban": "#9a5300" };
+
+function buildTotalDonutTile(counts) {
+  const total = BRANCHES.reduce((sum, b) => sum + counts[b], 0);
+  const tile = document.createElement("div");
+  tile.className = "total-tile";
+
+  const r = 45, cx = 60, cy = 60, strokeWidth = 18;
+  const circumference = 2 * Math.PI * r;
+  let cumulative = 0;
+  let arcs = "";
+
+  if (total === 0) {
+    arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e2e2e2" stroke-width="${strokeWidth}"/>`;
+  } else {
+    BRANCHES.forEach(branch => {
+      const value = counts[branch];
+      if (value === 0) return;
+      const dashLen = (value / total) * circumference;
+      const dashArray = `${dashLen} ${circumference - dashLen}`;
+      const dashOffset = -cumulative;
+      cumulative += dashLen;
+      arcs += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${BRANCH_CHART_COLORS[branch]}"
+        stroke-width="${strokeWidth}" stroke-dasharray="${dashArray}" stroke-dashoffset="${dashOffset}"
+        transform="rotate(-90 ${cx} ${cy})"/>`;
+    });
+  }
+
+  const legendRows = BRANCHES.map(branch => `
+    <div class="legend-row">
+      <span class="legend-left"><span class="legend-dot" style="background:${BRANCH_CHART_COLORS[branch]};"></span>${branch}</span>
+      <span class="legend-count">${counts[branch]}</span>
+    </div>`).join("");
+
+  tile.innerHTML = `
+    <div class="total-tile-title">Total vehicles — all branches</div>
+    <div class="donut-wrap">
+      <svg viewBox="0 0 120 120" width="100%" height="100%">${arcs}</svg>
+      <div class="donut-center">
+        <div class="num">${total}</div>
+        <div class="cap">in stock</div>
+      </div>
+    </div>
+    <div class="donut-legend">${legendRows}</div>`;
+
+  return tile;
+}
+
+// Full reset — used only when the person explicitly clicks "Dashboard"
+// in the top nav, or on first load. Clears search terms and collapses
+// everything back to a clean starting point.
+function renderDashboard() {
+  renderBranchTiles();
+  document.getElementById("global-search-input").value = "";
+  document.getElementById("global-scope").value = "all";
+  document.getElementById("global-search-results").innerHTML = "";
+  currentBranchFilter = null;
+  followUpsExpanded = false;
+  document.getElementById("followup-list-wrap").style.display = "none";
+  document.getElementById("followup-chevron").classList.remove("open");
+  renderFollowUps();
+  agingExpanded = false;
+  document.getElementById("aging-list-wrap").style.display = "none";
+  document.getElementById("aging-chevron").classList.remove("open");
+  renderAgingStock();
+  renderHeatmap();
+}
+
+let followUpsExpanded = false;
+
+document.getElementById("followup-toggle").onclick = () => {
+  followUpsExpanded = !followUpsExpanded;
+  document.getElementById("followup-list-wrap").style.display = followUpsExpanded ? "block" : "none";
+  document.getElementById("followup-chevron").classList.toggle("open", followUpsExpanded);
+};
+
+let agingExpanded = false;
+
+document.getElementById("aging-toggle").onclick = () => {
+  agingExpanded = !agingExpanded;
+  document.getElementById("aging-list-wrap").style.display = agingExpanded ? "block" : "none";
+  document.getElementById("aging-chevron").classList.toggle("open", agingExpanded);
+};
+
+function renderAgingStock() {
+  const card = document.getElementById("aging-card");
+  const list = document.getElementById("aging-list");
+  const badge = document.getElementById("aging-count-badge");
+  const items = activeVehicles()
+    .filter(v => v.status !== "Sold" && daysOnFloor(v.capturedDate) >= AGING_THRESHOLD_DAYS)
+    .sort((a, b) => daysOnFloor(b.capturedDate) - daysOnFloor(a.capturedDate));
+
+  if (items.length === 0) { card.style.display = "none"; return; }
+  card.style.display = "block";
+  badge.textContent = items.length;
+
+  list.innerHTML = "";
+  items.forEach(v => {
+    const dof = daysOnFloor(v.capturedDate);
+    const row = document.createElement("div");
+    row.className = "followup-row";
+    row.innerHTML = `
+      <div>
+        <strong>${v.year} ${v.make} ${v.model}</strong>
+        <span class="branch-chip ${branchClass(v.branch)}" style="margin-left:6px;">${v.branch}</span>
+        <div style="font-size:12px; color:#777; margin-top:3px;">R ${v.price.toLocaleString()} &middot; captured ${v.capturedDate}</div>
+      </div>
+      <span class="followup-date overdue">${dof} days</span>`;
+    row.onclick = () => openDetail(v.id);
+    list.appendChild(row);
+  });
+}
+
+// ---------------------------------------------------------------
+// PERFORMANCE HEAT MAP — dashboard-level view of sales and stock
+// by branch, over the last 6 months.
+//
+// IMPORTANT: the numbers below are illustrative sample data, not
+// derived from the vehicles array. The system currently only tracks
+// current stock, not a month-by-month sales history, so there is no
+// real data source for "units sold in March" yet. This panel shows
+// the shape and interaction of the feature now; wiring it to real
+// monthly figures is a separate, larger piece of work (recording a
+// timestamped sale event per vehicle, then aggregating by month).
+// Profit is intentionally excluded per the owner's decision.
+// ---------------------------------------------------------------
+const HEATMAP_MONTHS = ["Mar", "Apr", "May", "Jun", "Jul", "Aug"];
+const HEATMAP_SAMPLE_DATA = {
+  sales: {
+    "PMB": [4, 6, 5, 7, 6, 8],
+    "Richards Bay": [3, 4, 5, 4, 6, 5],
+    "Durban": [5, 5, 6, 7, 8, 7]
+  },
+  stock: {
+    "PMB": [8, 7, 9, 6, 7, 5],
+    "Richards Bay": [10, 9, 8, 9, 7, 8],
+    "Durban": [9, 8, 7, 6, 5, 6]
+  }
+};
+let heatmapMetric = "sales";
+
+function heatmapColor(t) {
+  const low = [28, 43, 62], high = [79, 168, 224];
+  const c = low.map((v, i) => Math.round(v + (high[i] - v) * t));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+
+function renderHeatmap() {
+  document.getElementById("heatmap-btn-sales").classList.toggle("active", heatmapMetric === "sales");
+  document.getElementById("heatmap-btn-stock").classList.toggle("active", heatmapMetric === "stock");
+
+  const data = HEATMAP_SAMPLE_DATA[heatmapMetric];
+  const allValues = BRANCHES.flatMap(b => data[b]);
+  const min = Math.min(...allValues), max = Math.max(...allValues);
+
+  let html = '<div class="heatmap-grid-inner"><div></div>' +
+    HEATMAP_MONTHS.map(m => `<div class="heatmap-month-label">${m}</div>`).join("");
+  BRANCHES.forEach(b => {
+    html += `<div class="heatmap-branch-label">${b}</div>`;
+    data[b].forEach(v => {
+      const t = max === min ? 0.5 : (v - min) / (max - min);
+      const textColor = t > 0.55 ? "#141414" : "#fff";
+      html += `<div class="heatmap-cell" style="background:${heatmapColor(t)}; color:${textColor};" title="${b}: ${v}">${v}</div>`;
+    });
+  });
+  html += "</div>";
+  document.getElementById("heatmap-grid").innerHTML = html;
+
+  const totalSales = BRANCHES.reduce((sum, b) => sum + HEATMAP_SAMPLE_DATA.sales[b].reduce((a, c) => a + c, 0), 0);
+  const currentStock = BRANCHES.reduce((sum, b) => sum + HEATMAP_SAMPLE_DATA.stock[b][HEATMAP_SAMPLE_DATA.stock[b].length - 1], 0);
+  document.getElementById("heatmap-kpi-sales").textContent = totalSales;
+  document.getElementById("heatmap-kpi-stock").textContent = currentStock;
+}
+
+document.getElementById("heatmap-btn-sales").onclick = () => { heatmapMetric = "sales"; renderHeatmap(); };
+document.getElementById("heatmap-btn-stock").onclick = () => { heatmapMetric = "stock"; renderHeatmap(); };
+
+function renderFollowUps() {
+  const card = document.getElementById("followup-card");
+  const list = document.getElementById("followup-list");
+  const badge = document.getElementById("followup-count-badge");
+  const items = [];
+  activeVehicles().forEach(v => {
+    (v.comments || []).forEach(c => {
+      if (c.followUpDate) items.push({ vehicle: v, comment: c });
+    });
+  });
+  items.sort((a, b) => a.comment.followUpDate.localeCompare(b.comment.followUpDate));
+
+  if (items.length === 0) { card.style.display = "none"; return; }
+  card.style.display = "block";
+  badge.textContent = items.length;
+  badge.classList.toggle("zero", items.length === 0);
+
+  list.innerHTML = "";
+  const todayStr = new Date().toISOString().slice(0, 10);
+  items.forEach(item => {
+    const v = item.vehicle, c = item.comment;
+    const row = document.createElement("div");
+    row.className = "followup-row";
+    let dateClass = "";
+    if (c.followUpDate < todayStr) dateClass = "overdue";
+    else if (c.followUpDate === todayStr) dateClass = "today";
+    row.innerHTML = `
+      <div>
+        <strong>${v.year} ${v.make} ${v.model}</strong>
+        <span class="branch-chip ${branchClass(v.branch)}" style="margin-left:6px;">${v.branch}</span>
+        <div style="font-size:12px; color:#777; margin-top:3px;">${CATEGORY_LABELS[c.category]} &middot; ${c.salesman} &middot; "${c.text.slice(0, 60)}${c.text.length > 60 ? "..." : ""}"</div>
+      </div>
+      <span class="followup-date ${dateClass}">${c.followUpDate}</span>`;
+    row.onclick = () => openDetail(v.id);
+    list.appendChild(row);
+  });
+}
+
+function openBranch(branch) {
+  currentBranchFilter = branch;
+  showView("branch");
+  document.getElementById("branch-detail-title").textContent = branch + " — inventory";
+  document.getElementById("branch-search-input").value = "";
+  clearFiltersUI("bf-");
+  runBranchSearch();
+}
+
+function textMatch(v, term) {
+  return !term || (v.make + " " + v.model + " " + v.variant + " " + v.year).toLowerCase().includes(term);
+}
+
+function applyAdvancedFilters(pool, prefix) {
+  const status = document.getElementById(prefix + "status").value;
+  const priceMin = parseFloat(document.getElementById(prefix + "price-min").value);
+  const priceMax = parseFloat(document.getElementById(prefix + "price-max").value);
+  const mileageMin = parseFloat(document.getElementById(prefix + "mileage-min").value);
+  const mileageMax = parseFloat(document.getElementById(prefix + "mileage-max").value);
+  return pool.filter(v => {
+    if (status && v.status !== status) return false;
+    if (!isNaN(priceMin) && v.price < priceMin) return false;
+    if (!isNaN(priceMax) && v.price > priceMax) return false;
+    if (!isNaN(mileageMin) && v.mileage < mileageMin) return false;
+    if (!isNaN(mileageMax) && v.mileage > mileageMax) return false;
+    return true;
+  });
+}
+
+function clearFiltersUI(prefix) {
+  document.getElementById(prefix + "status").value = "";
+  document.getElementById(prefix + "price-min").value = "";
+  document.getElementById(prefix + "price-max").value = "";
+  document.getElementById(prefix + "mileage-min").value = "";
+  document.getElementById(prefix + "mileage-max").value = "";
+}
+
+function runBranchSearch() {
+  const term = document.getElementById("branch-search-input").value.trim().toLowerCase();
+  let pool = activeVehicles().filter(v => v.branch === currentBranchFilter && textMatch(v, term));
+  pool = applyAdvancedFilters(pool, "bf-");
+  renderVehicleList(pool, "branch-vehicle-list");
+}
+
+document.getElementById("branch-search-input").addEventListener("input", runBranchSearch);
+["bf-status", "bf-price-min", "bf-price-max", "bf-mileage-min", "bf-mileage-max"].forEach(id => {
+  document.getElementById(id).addEventListener("input", runBranchSearch);
+});
+document.getElementById("branch-filters-toggle").onclick = () => document.getElementById("branch-filters-row").classList.toggle("open");
+document.getElementById("branch-filters-clear").onclick = () => { clearFiltersUI("bf-"); runBranchSearch(); };
+
+function renderVehicleList(list, containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  if (list.length === 0) {
+    container.innerHTML = `<div class="empty-state">No vehicles match this search.</div>`;
+    return;
+  }
+  list.forEach(v => {
+    const row = document.createElement("div");
+    row.className = "vehicle-row";
+    const commentFlag = v.comments && v.comments.length
+      ? `<span class="comment-flag">💬 ${v.comments.length} comment${v.comments.length > 1 ? "s" : ""}</span>` : "";
+    row.innerHTML = `
+      <div class="row-thumb">${carIcon(v.color)}</div>
+      <div class="main">
+        <div class="title">${v.year} ${v.make} ${v.model} ${v.variant}</div>
+        <div class="sub">
+          <span class="branch-chip ${branchClass(v.branch)}">${v.branch}</span>
+          <span>${v.color} &middot; ${v.mileage.toLocaleString()} km</span>
+          ${commentFlag}
+        </div>
+      </div>
+      <div class="meta">
+        <div>
+          <div>R ${v.price.toLocaleString()}</div>
+          <span class="status-badge status-${v.status}">${v.status}</span>
+        </div>
+        <button type="button" class="btn-view-report">View report &rarr;</button>
+      </div>`;
+    row.onclick = () => openDetail(v.id);
+    row.querySelector(".btn-view-report").onclick = (e) => { e.stopPropagation(); openDetail(v.id); };
+    container.appendChild(row);
+  });
+}
+
+// ---------------------------------------------------------------
+// GLOBAL / CROSS-BRANCH LIVE SEARCH
+// ---------------------------------------------------------------
+document.getElementById("global-search-input").addEventListener("input", runGlobalSearch);
+document.getElementById("global-scope").addEventListener("change", runGlobalSearch);
+["gf-status", "gf-price-min", "gf-price-max", "gf-mileage-min", "gf-mileage-max"].forEach(id => {
+  document.getElementById(id).addEventListener("input", runGlobalSearch);
+});
+document.getElementById("global-filters-toggle").onclick = () => document.getElementById("global-filters-row").classList.toggle("open");
+document.getElementById("global-filters-clear").onclick = () => { clearFiltersUI("gf-"); runGlobalSearch(); };
+
+function runGlobalSearch() {
+  const scope = document.getElementById("global-scope").value;
+  const term = document.getElementById("global-search-input").value.trim().toLowerCase();
+
+  const resultsWrap = document.getElementById("global-search-results");
+
+  const filtersActive = ["gf-status", "gf-price-min", "gf-price-max", "gf-mileage-min", "gf-mileage-max"]
+    .some(id => document.getElementById(id).value !== "");
+
+  if (!term && !filtersActive) { resultsWrap.innerHTML = ""; return; }
+
+  let pool = scope === "all" ? activeVehicles() : activeVehicles().filter(v => v.branch === scope);
+  pool = pool.filter(v => textMatch(v, term));
+  pool = applyAdvancedFilters(pool, "gf-");
+
+  resultsWrap.innerHTML = `<div class="section-title">Search results (${pool.length})</div><div class="vehicle-list" id="global-results-list"></div>`;
+  renderVehicleList(pool, "global-results-list");
+}
+
+// ---------------------------------------------------------------
+// VEHICLE REPORT (READ-ONLY)
+// ---------------------------------------------------------------
+function openDetail(id, pushState) {
+  if (pushState !== false) navStack.push(captureState());
+  const v = vehicles.find(x => x.id === id);
+  if (!v) return;
+  currentDetailId = id;
+
+  document.getElementById("detail-title").textContent = `${v.year} ${v.make} ${v.model} ${v.variant}`;
+  document.getElementById("detail-location").innerHTML = `Located at: <span class="branch-chip ${branchClass(v.branch)}">${v.branch}</span>`;
+
+  document.getElementById("detail-archived-banner").style.display = v.archived ? "block" : "none";
+  document.getElementById("detail-actions-active").style.display = v.archived ? "none" : "flex";
+  document.getElementById("detail-actions-archived").style.display = v.archived ? "flex" : "none";
+
+  const dof = daysOnFloor(v.capturedDate);
+  const floorBadge = document.getElementById("detail-floor-badge");
+  floorBadge.textContent = `${dof} day${dof === 1 ? "" : "s"} on the floor`;
+  floorBadge.className = "floor-badge" + (dof >= AGING_THRESHOLD_DAYS ? " aging" : "");
+  if (dof >= AGING_THRESHOLD_DAYS) floorBadge.textContent += " — aging stock, worth reviewing";
+
+  const statusEl = document.getElementById("detail-status");
+  statusEl.textContent = v.status;
+  statusEl.className = "status-badge status-" + v.status;
+
+  const photoStrip = document.getElementById("detail-photos");
+  photoStrip.innerHTML = "";
+  const labels = ["Front", "Side", "Interior"];
+  const shownCount = Math.min(v.photos, 3);
+  for (let i = 0; i < shownCount; i++) {
+    const ph = document.createElement("div");
+    ph.className = "photo-thumb";
+    ph.style.flexDirection = "column";
+    ph.innerHTML = `<div style="width:60%; height:55%;">${carIcon(v.color)}</div><div style="margin-top:4px;">${labels[i]}</div>`;
+    photoStrip.appendChild(ph);
+  }
+  if (v.photos > 3) {
+    const more = document.createElement("div");
+    more.className = "photo-thumb";
+    more.textContent = `+${v.photos - 3} more on file`;
+    photoStrip.appendChild(more);
+  }
+
+  document.getElementById("detail-description").textContent = v.description || "No description captured.";
+  document.getElementById("detail-features").textContent = v.features || "No features listed.";
+
+  const concernsWrap = document.getElementById("detail-concerns-wrap");
+  if (v.concerns) { concernsWrap.style.display = "block"; document.getElementById("detail-concerns").textContent = v.concerns; }
+  else concernsWrap.style.display = "none";
+
+  const addonsWrap = document.getElementById("detail-addons-wrap");
+  if (v.addons) { addonsWrap.style.display = "block"; document.getElementById("detail-addons").textContent = v.addons; }
+  else addonsWrap.style.display = "none";
+
+  document.getElementById("d-price").textContent = "R " + v.price.toLocaleString();
+  const costEl = document.getElementById("d-cost");
+  const profitEl = document.getElementById("d-profit");
+  if (v.costPrice) {
+    costEl.textContent = "R " + v.costPrice.toLocaleString();
+    const profit = v.price - v.costPrice;
+    profitEl.textContent = (profit >= 0 ? "R " : "-R ") + Math.abs(profit).toLocaleString();
+    profitEl.style.color = profit >= 0 ? "#1c7a3c" : "#a03d0a";
+  } else {
+    costEl.textContent = "Not captured";
+    profitEl.textContent = "—";
+    profitEl.style.color = "";
+  }
+  document.getElementById("d-status2").textContent = v.status;
+  document.getElementById("d-listing").textContent = v.listing;
+  document.getElementById("d-mileage").textContent = v.mileage.toLocaleString() + " km";
+  document.getElementById("d-year").textContent = v.year;
+  document.getElementById("d-color").textContent = v.color;
+  document.getElementById("d-vin").textContent = v.vin || "—";
+  document.getElementById("d-trans").textContent = v.transmission;
+  document.getElementById("d-fuel").textContent = v.fuel;
+  document.getElementById("d-engine").textContent = v.engine;
+  document.getElementById("d-capturedby").textContent = v.capturedBy;
+  const staffInfo = STAFF[v.capturedBy];
+  document.getElementById("d-capturedphone").textContent = staffInfo ? staffInfo.phone : "—";
+  document.getElementById("d-capturedemail").textContent = staffInfo ? staffInfo.email : "—";
+  document.getElementById("d-capturedate").textContent = v.capturedDate;
+  document.getElementById("d-daysonfloor").textContent = dof + " days";
+
+  const phList = document.getElementById("price-history-list");
+  if (v.priceHistory && v.priceHistory.length) {
+    phList.style.display = "block";
+    phList.innerHTML = "<li><em>Price history:</em></li>" + v.priceHistory.map(p =>
+      `<li>${p.date}: R ${p.oldPrice.toLocaleString()} &rarr; R ${p.newPrice.toLocaleString()}</li>`
+    ).join("");
+  } else {
+    phList.style.display = "none";
+    phList.innerHTML = "";
+  }
+
+  renderComments(v);
+  renderActivityLog(v);
+
+  showView("detail");
+}
+
+function renderComments(v) {
+  const list = document.getElementById("comment-list");
+  list.innerHTML = "";
+  if (!v.comments || v.comments.length === 0) {
+    list.innerHTML = `<div class="empty-state" style="padding:20px;">No comments yet on this vehicle.</div>`;
+    return;
+  }
+  [...v.comments].reverse().forEach(c => {
+    const div = document.createElement("div");
+    div.className = "comment-entry";
+    div.innerHTML = `
+      <div class="comment-entry-top">
+        <span class="comment-cat ${c.category}">${CATEGORY_LABELS[c.category]}</span>
+        <span class="comment-meta">${c.salesman || "Unnamed"}${c.contact ? " &middot; " + c.contact : ""} &middot; ${c.date}${c.followUpDate ? " &middot; follow up " + c.followUpDate : ""}</span>
+      </div>
+      <p class="comment-text">${c.text}</p>`;
+    list.appendChild(div);
+  });
+}
+
+document.getElementById("btn-add-comment").onclick = () => {
+  const v = vehicles.find(x => x.id === currentDetailId);
+  if (!v) return;
+  const text = document.getElementById("c-text").value.trim();
+  if (!text) { showToast("Please enter a comment before adding."); return; }
+  const category = document.getElementById("c-category").value;
+  const salesman = document.getElementById("c-name").value.trim() || "Unnamed";
+  const contact = document.getElementById("c-contact").value.trim() || null;
+  const followUpDate = document.getElementById("c-followup").value || null;
+  v.comments = v.comments || [];
+  v.comments.push({ id: nextCommentId++, category, salesman, contact, text, date: new Date().toISOString().slice(0, 10), followUpDate });
+  v.activityLog = v.activityLog || [];
+  v.activityLog.push({ date: new Date().toISOString().slice(0, 10), action: `Comment added by ${salesman} (${CATEGORY_LABELS[category]})${followUpDate ? " — follow up " + followUpDate : ""}` });
+  document.getElementById("c-text").value = "";
+  document.getElementById("c-name").value = "";
+  document.getElementById("c-contact").value = "";
+  document.getElementById("c-followup").value = "";
+  renderComments(v);
+  renderActivityLog(v);
+};
+
+function renderActivityLog(v) {
+  const ul = document.getElementById("activity-log");
+  ul.innerHTML = "";
+  (v.activityLog || []).slice().reverse().forEach(entry => {
+    const li = document.createElement("li");
+    li.textContent = `${entry.date} — ${entry.action}`;
+    ul.appendChild(li);
+  });
+}
+
+document.getElementById("btn-delete-vehicle").onclick = () => {
+  const v = vehicles.find(x => x.id === currentDetailId);
+  if (!v) return;
+  const ok = confirm(`Archive ${v.year} ${v.make} ${v.model} from ${v.branch} inventory? It will be hidden from active stock but can be restored any time.`);
+  if (!ok) return;
+  v.archived = true;
+  v.activityLog = v.activityLog || [];
+  v.activityLog.push({ date: new Date().toISOString().slice(0, 10), action: "Archived by Current user" });
+  showToast(`Archived ${v.year} ${v.make} ${v.model}. You can restore it from "View archived vehicles" on the dashboard.`);
+  goBack();
+};
+
+document.getElementById("btn-restore-vehicle").onclick = () => {
+  const v = vehicles.find(x => x.id === currentDetailId);
+  if (!v) return;
+  v.archived = false;
+  v.activityLog = v.activityLog || [];
+  v.activityLog.push({ date: new Date().toISOString().slice(0, 10), action: "Restored to active stock by Current user" });
+  showToast(`Restored ${v.year} ${v.make} ${v.model} to active stock.`);
+  openDetail(v.id, false);
+};
+
+document.getElementById("btn-print-report").onclick = () => { window.print(); };
+
+// ---------------------------------------------------------------
+// GO TO EDIT
+// ---------------------------------------------------------------
+let editStagedPhotoCount = 0;
+
+document.getElementById("btn-goto-edit").onclick = () => {
+  const v = vehicles.find(x => x.id === currentDetailId);
+  if (!v) return;
+  navStack.push(captureState());
+  document.getElementById("e-branch").value = v.branch;
+  document.getElementById("e-status").value = v.status;
+  document.getElementById("e-make").value = v.make;
+  document.getElementById("e-model").value = v.model;
+  document.getElementById("e-variant").value = v.variant;
+  document.getElementById("e-year").value = v.year;
+  document.getElementById("e-color").value = v.color;
+  document.getElementById("e-vin").value = v.vin;
+  document.getElementById("e-price").value = v.price;
+  document.getElementById("e-cost").value = v.costPrice || "";
+  document.getElementById("e-listing").value = v.listing;
+  document.getElementById("e-mileage").value = v.mileage;
+  document.getElementById("e-trans").value = v.transmission;
+  document.getElementById("e-fuel").value = v.fuel;
+  document.getElementById("e-engine").value = v.engine;
+  document.getElementById("e-description").value = v.description;
+  document.getElementById("e-features").value = v.features;
+  document.getElementById("e-concerns").value = v.concerns;
+  document.getElementById("e-addons").value = v.addons;
+  document.getElementById("e-vin-warning").style.display = "none";
+
+  editStagedPhotoCount = v.photos;
+  renderEditPhotoPreviews();
+
+  showView("edit");
+};
+
+document.getElementById("edit-cancel-btn").onclick = () => goBack();
+
+function renderEditPhotoPreviews() {
+  const grid = document.getElementById("edit-photo-preview-grid");
+  grid.innerHTML = "";
+  for (let i = 0; i < editStagedPhotoCount; i++) {
+    const div = document.createElement("div");
+    div.className = "photo-preview";
+    div.innerHTML = `<span>Photo ${i + 1}</span><button type="button" data-idx="${i}">&times;</button>`;
+    div.querySelector("button").onclick = () => {
+      if (editStagedPhotoCount > 0) editStagedPhotoCount--;
+      renderEditPhotoPreviews();
+    };
+    grid.appendChild(div);
+  }
+  const counter = document.getElementById("edit-photo-counter");
+  if (editStagedPhotoCount >= 5) {
+    counter.textContent = `${editStagedPhotoCount} photos on record — minimum of 5 met.`;
+    counter.className = "photo-counter ok";
+  } else {
+    counter.textContent = `${editStagedPhotoCount} of 5 minimum photos — ${5 - editStagedPhotoCount} more needed.`;
+    counter.className = "photo-counter bad";
   }
 }
-document.getElementById("s-photos").addEventListener("change", handlePhotoFiles);
+
+document.getElementById("ebtn-take-photo").onclick = () => document.getElementById("efile-camera").click();
+document.getElementById("ebtn-upload-photo").onclick = () => document.getElementById("efile-gallery").click();
+document.getElementById("efile-camera").addEventListener("change", handleEditFiles);
+document.getElementById("efile-gallery").addEventListener("change", handleEditFiles);
+function handleEditFiles(e) {
+  editStagedPhotoCount += e.target.files.length;
+  e.target.value = "";
+  renderEditPhotoPreviews();
+}
+
+document.getElementById("e-vin").addEventListener("input", function () {
+  const term = this.value.trim().toLowerCase();
+  const dup = term && vehicles.some(v => v.id !== currentDetailId && v.vin.trim().toLowerCase() === term);
+  document.getElementById("e-vin-warning").style.display = dup ? "block" : "none";
+});
+
+document.getElementById("edit-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  if (editStagedPhotoCount < 5) { showToast("At least 5 photos are required before saving."); return; }
+  const v = vehicles.find(x => x.id === currentDetailId);
+  if (!v) return;
+
+  const changes = [];
+  const today = new Date().toISOString().slice(0, 10);
+  const oldBranch = v.branch;
+  const oldPrice = v.price;
+  const oldStatus = v.status;
+
+  function track(field, label, newVal) { if (String(v[field]) !== String(newVal)) changes.push(label); v[field] = newVal; }
+
+  track("branch", "Branch", document.getElementById("e-branch").value);
+  track("status", "Status", document.getElementById("e-status").value);
+  if (oldStatus !== "Sold" && v.status === "Sold") {
+    v.soldBy = "Current user";
+    v.soldDate = today;
+    v.activityLog = v.activityLog || [];
+    v.activityLog.push({ date: today, action: "Marked as Sold by Current user" });
+  }
+  track("make", "Make", document.getElementById("e-make").value);
+  track("model", "Model", document.getElementById("e-model").value);
+  track("variant", "Variant", document.getElementById("e-variant").value);
+  track("year", "Year", parseInt(document.getElementById("e-year").value) || v.year);
+  track("color", "Color", document.getElementById("e-color").value);
+  track("vin", "VIN/Reg", document.getElementById("e-vin").value);
+  const newPrice = parseInt(document.getElementById("e-price").value) || v.price;
+  track("price", "Price", newPrice);
+  track("costPrice", "Cost price", parseInt(document.getElementById("e-cost").value) || 0);
+  track("listing", "Listing type", document.getElementById("e-listing").value);
+  track("mileage", "Mileage", parseInt(document.getElementById("e-mileage").value) || 0);
+  track("transmission", "Transmission", document.getElementById("e-trans").value);
+  track("fuel", "Fuel type", document.getElementById("e-fuel").value);
+  track("engine", "Engine", document.getElementById("e-engine").value);
+  track("description", "Description", document.getElementById("e-description").value);
+  track("features", "Features", document.getElementById("e-features").value);
+  track("concerns", "Areas of concern", document.getElementById("e-concerns").value);
+  track("addons", "Add-ons", document.getElementById("e-addons").value);
+  v.photos = editStagedPhotoCount;
+
+  v.activityLog = v.activityLog || [];
+
+  // Branch transfer gets its own explicit log line
+  const newBranch = v.branch;
+  if (oldBranch !== newBranch) {
+    v.activityLog.push({ date: today, action: `Transferred from ${oldBranch} to ${newBranch} by Current user` });
+  }
+
+  // Price changes are tracked in a dedicated price history list
+  if (oldPrice !== newPrice) {
+    v.priceHistory = v.priceHistory || [];
+    v.priceHistory.push({ date: today, oldPrice, newPrice });
+  }
+
+  const otherChanges = changes.filter(c => c !== "Branch");
+  v.activityLog.push({
+    date: today,
+    action: otherChanges.length ? `Edited — updated: ${otherChanges.join(", ")}` : (changes.length ? "Edited" : "Edited (no field changes detected)")
+  });
+
+  showToast("Changes saved to vehicle record.");
+  goBack();
+});
+
+// ---------------------------------------------------------------
+// ADD VEHICLE FORM — photo capture simulation
+// ---------------------------------------------------------------
+let stagedPhotos = [];
+
+document.getElementById("btn-take-photo").onclick = () => document.getElementById("file-camera").click();
+document.getElementById("btn-upload-photo").onclick = () => document.getElementById("file-gallery").click();
+document.getElementById("file-camera").addEventListener("change", handleFiles);
+document.getElementById("file-gallery").addEventListener("change", handleFiles);
+
+function handleFiles(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(f => stagedPhotos.push(f.name));
+  e.target.value = "";
+  renderPhotoPreviews();
+}
 
 function renderPhotoPreviews() {
   const grid = document.getElementById("photo-preview-grid");
   grid.innerHTML = "";
-  stagedPhotos.forEach((photo, idx) => {
-    const thumb = document.createElement("div");
-    thumb.className = "photo-thumb";
-    thumb.innerHTML = `<img src="${photo.dataUrl}" alt="${photo.name}" style="width:100%;height:100%;object-fit:cover;">
-      <button type="button" class="remove" data-idx="${idx}">&times;</button>`;
-    grid.appendChild(thumb);
+  stagedPhotos.forEach((name, idx) => {
+    const div = document.createElement("div");
+    div.className = "photo-preview";
+    div.innerHTML = `<span>Photo ${idx + 1}</span><button type="button" data-idx="${idx}">&times;</button>`;
+    div.querySelector("button").onclick = () => { stagedPhotos.splice(idx, 1); renderPhotoPreviews(); };
+    grid.appendChild(div);
   });
-  grid.querySelectorAll(".remove").forEach(btn => {
-    btn.onclick = () => { stagedPhotos.splice(parseInt(btn.dataset.idx), 1); renderPhotoPreviews(); };
-  });
-  const note = document.getElementById("photo-count-note");
-  const count = stagedPhotos.length;
-  note.textContent = count >= 3 ? `${count} photo${count === 1 ? "" : "s"} added` : `${count} of 3 minimum photos added`;
-  note.classList.toggle("ok", count >= 3);
+  const counter = document.getElementById("photo-counter");
+  if (stagedPhotos.length >= 5) {
+    counter.textContent = `${stagedPhotos.length} of 5 minimum photos captured — requirement met.`;
+    counter.className = "photo-counter ok";
+  } else {
+    counter.textContent = `${stagedPhotos.length} of 5 minimum photos captured — ${5 - stagedPhotos.length} more needed.`;
+    counter.className = "photo-counter bad";
+  }
   validateForm();
 }
 
-// ---------- Form validation ----------
-const requiredIds = ["s-make", "s-model", "s-year", "s-mileage", "s-name", "s-phone"];
+document.getElementById("f-vin").addEventListener("input", function () {
+  const term = this.value.trim().toLowerCase();
+  const dup = term && vehicles.some(v => v.vin.trim().toLowerCase() === term);
+  document.getElementById("f-vin-warning").style.display = dup ? "block" : "none";
+});
+
+// ---------------------------------------------------------------
+// FORM VALIDATION & SAVE (ADD)
+// ---------------------------------------------------------------
+const requiredIds = ["f-branch", "f-make", "f-model", "f-year", "f-price"];
+requiredIds.forEach(id => document.getElementById(id).addEventListener("input", validateForm));
+document.getElementById("f-branch").addEventListener("change", validateForm);
+
 function validateForm() {
   const allFilled = requiredIds.every(id => document.getElementById(id).value.trim() !== "");
-  const enoughPhotos = stagedPhotos.length >= 3;
-  const year = parseInt(document.getElementById("s-year").value);
-  const mileage = parseInt(document.getElementById("s-mileage").value);
-  const yearOk = document.getElementById("s-year").value === "" || (year >= 1980 && year <= 2027);
-  const mileageOk = document.getElementById("s-mileage").value === "" || (mileage >= 0 && mileage <= 900000);
-  document.getElementById("s-year-error").style.display = yearOk ? "none" : "block";
-  document.getElementById("s-mileage-error").style.display = mileageOk ? "none" : "block";
-  document.getElementById("submit-btn").disabled = !(allFilled && enoughPhotos && yearOk && mileageOk);
+  document.getElementById("submit-btn").disabled = !(allFilled && stagedPhotos.length >= 5);
 }
-requiredIds.forEach(id => document.getElementById(id).addEventListener("input", validateForm));
 
-// ---------- Submit ----------
-document.getElementById("sell-form").addEventListener("submit", function (e) {
+document.getElementById("intake-form").addEventListener("submit", function (e) {
   e.preventDefault();
-  const record = {
-    id: nextRef,
-    ref: "#" + nextRef,
-    name: document.getElementById("s-name").value.trim(),
-    phone: document.getElementById("s-phone").value.trim(),
-    make: document.getElementById("s-make").value.trim(),
-    model: document.getElementById("s-model").value.trim(),
-    year: document.getElementById("s-year").value.trim(),
-    mileage: document.getElementById("s-mileage").value.trim(),
-    color: document.getElementById("s-color").value.trim(),
-    price: document.getElementById("s-price").value.trim(),
-    condition: document.getElementById("s-condition").value.trim(),
-    photos: stagedPhotos.map(p => p.dataUrl),
-    status: "New",
-    submittedDate: new Date().toISOString().slice(0, 10)
+  const today = new Date().toISOString().slice(0, 10);
+  const v = {
+    id: nextId++,
+    branch: document.getElementById("f-branch").value,
+    make: document.getElementById("f-make").value,
+    model: document.getElementById("f-model").value,
+    variant: document.getElementById("f-variant").value,
+    year: parseInt(document.getElementById("f-year").value) || "",
+    color: document.getElementById("f-color").value,
+    vin: document.getElementById("f-vin").value,
+    price: parseInt(document.getElementById("f-price").value) || 0,
+    costPrice: parseInt(document.getElementById("f-cost").value) || 0,
+    status: document.getElementById("f-status").value,
+    listing: document.getElementById("f-listing").value,
+    mileage: parseInt(document.getElementById("f-mileage").value) || 0,
+    transmission: document.getElementById("f-trans").value,
+    fuel: document.getElementById("f-fuel").value,
+    engine: document.getElementById("f-engine").value,
+    description: document.getElementById("f-description").value,
+    features: document.getElementById("f-features").value,
+    concerns: document.getElementById("f-concerns").value,
+    addons: document.getElementById("f-addons").value,
+    capturedBy: "Current user",
+    capturedDate: today,
+    photos: stagedPhotos.length,
+    comments: [],
+    activityLog: [{ date: today, action: "Vehicle captured by Current user" }]
   };
-  submissions.push(record);
-  nextRef++;
-  persist();
+  vehicles.push(v);
 
-  document.getElementById("confirm-heading").textContent = `Thanks, ${record.name.split(" ")[0]} — we've got your car.`;
-  document.getElementById("confirm-ref").textContent = record.ref;
-  document.getElementById("confirm-name").textContent = record.name;
-  document.getElementById("confirm-car").textContent = `${record.year} ${record.make} ${record.model} — ${parseInt(record.mileage).toLocaleString()} km`;
-  showView("view-confirm");
-
-  // Reset form for the next person
   this.reset();
   stagedPhotos = [];
   renderPhotoPreviews();
+  document.getElementById("f-vin-warning").style.display = "none";
+
+  showToast(`Saved: ${v.year} ${v.make} ${v.model} to ${v.branch} inventory.`);
+  navStack = [];
+  showView("dashboard");
+  renderDashboard();
 });
 
-document.getElementById("btn-done").onclick = () => showView("view-landing");
-
-// ---------- Admin gate ----------
-document.getElementById("nav-to-gate").onclick = () => {
-  document.getElementById("gate-passcode").value = "";
-  document.getElementById("gate-error").style.display = "none";
-  showView("view-gate");
-};
-
-document.getElementById("gate-submit").onclick = attemptGateLogin;
-document.getElementById("gate-passcode").addEventListener("keydown", e => { if (e.key === "Enter") attemptGateLogin(); });
-
-function attemptGateLogin() {
-  const entered = document.getElementById("gate-passcode").value;
-  if (entered === DEMO_PASSCODE) {
-    renderAdminList();
-    showView("view-admin");
-  } else {
-    document.getElementById("gate-error").style.display = "block";
-  }
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  setTimeout(() => { t.style.display = "none"; }, 3500);
 }
 
-document.getElementById("admin-logout").onclick = () => showView("view-landing");
-document.getElementById("back-to-admin-list").onclick = () => { renderAdminList(); showView("view-admin"); };
-
-// ---------- Admin list ----------
-function statusClass(status) { return "status-" + status.replace(/\s+/g, "-"); }
-
-function renderAdminList() {
-  const wrap = document.getElementById("submission-list");
-  wrap.innerHTML = "";
-  if (submissions.length === 0) {
-    wrap.innerHTML = `<div class="empty-admin"><div class="big">📭</div>No submissions yet. Once someone submits the "Sell My Car" form, it will show up here.</div>`;
-    return;
-  }
-
-  const searchTerm = document.getElementById("admin-search").value.trim().toLowerCase();
-  const statusFilter = document.getElementById("admin-status-filter").value;
-
-  const filtered = [...submissions].reverse().filter(s => {
-    const matchesSearch = !searchTerm ||
-      s.name.toLowerCase().includes(searchTerm) ||
-      s.make.toLowerCase().includes(searchTerm) ||
-      s.model.toLowerCase().includes(searchTerm);
-    const matchesStatus = !statusFilter || s.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  if (filtered.length === 0) {
-    wrap.innerHTML = `<div class="no-results">No submissions match your search or filter.</div>`;
-    return;
-  }
-
-  filtered.forEach(s => {
-    const row = document.createElement("div");
-    row.className = "submission-row";
-    row.innerHTML = `
-      <span class="ref-badge">${s.ref}</span>
-      <div class="info">
-        <div class="name">${s.name}</div>
-        <div class="car">${s.year} ${s.make} ${s.model} &middot; ${parseInt(s.mileage).toLocaleString()} km</div>
-      </div>
-      <span class="status-pill ${statusClass(s.status)}">${s.status}</span>`;
-    row.onclick = () => openAdminDetail(s.id);
-    wrap.appendChild(row);
-  });
-}
-document.getElementById("admin-search").addEventListener("input", renderAdminList);
-document.getElementById("admin-status-filter").addEventListener("change", renderAdminList);
-
-// ---------- Admin detail ----------
-function openLightbox(dataUrl) {
-  document.getElementById("lightbox-img").src = dataUrl;
-  document.getElementById("lightbox").classList.add("open");
-}
-function closeLightbox() {
-  document.getElementById("lightbox").classList.remove("open");
-}
-document.getElementById("lightbox-close").onclick = closeLightbox;
-document.getElementById("lightbox").addEventListener("click", (e) => { if (e.target.id === "lightbox") closeLightbox(); });
-
-function openAdminDetail(id) {
-  currentDetailId = id;
-  const s = submissions.find(x => x.id === id);
-  if (!s) return;
-
-  document.getElementById("ad-ref-heading").textContent = s.ref + " — " + s.name;
-  document.getElementById("ad-submitted-note").textContent = "Submitted " + s.submittedDate;
-  document.getElementById("ad-make-model").textContent = s.make + " " + s.model;
-  document.getElementById("ad-year").textContent = s.year;
-  document.getElementById("ad-mileage").textContent = parseInt(s.mileage).toLocaleString() + " km";
-  document.getElementById("ad-color").textContent = s.color || "Not specified";
-  document.getElementById("ad-price").textContent = s.price ? "R " + parseInt(s.price).toLocaleString() : "Not specified";
-  document.getElementById("ad-name").textContent = s.name;
-  document.getElementById("ad-phone").textContent = s.phone;
-  document.getElementById("ad-condition").textContent = s.condition || "No issues mentioned.";
-  document.getElementById("ad-status-select").value = s.status;
-
-  const photoWrap = document.getElementById("ad-photos");
-  photoWrap.innerHTML = "";
-  if (s.photos.length === 0) {
-    photoWrap.innerHTML = `<div style="grid-column:1/-1;color:var(--muted);font-size:13px;padding:20px;text-align:center;">No photos on this submission.</div>`;
-  }
-  s.photos.forEach(dataUrl => {
-    const thumb = document.createElement("div");
-    thumb.className = "photo-thumb";
-    thumb.innerHTML = `<img src="${dataUrl}" alt="Vehicle photo" style="width:100%;height:100%;object-fit:cover;">`;
-    thumb.onclick = () => openLightbox(dataUrl);
-    photoWrap.appendChild(thumb);
-  });
-
-  // WhatsApp click-to-chat requires the FULL INTERNATIONAL number with no
-  // leading 0 and no "+" — just digits, country code first. Sellers will
-  // naturally type local South African numbers starting with 0 (e.g.
-  // "082 123 4567"), so that leading 0 must become the country code 27.
-  // If someone already typed it with a country code, this leaves it alone.
-  let waNumber = s.phone.replace(/[^0-9]/g, "");
-  if (waNumber.startsWith("0")) waNumber = "27" + waNumber.slice(1);
-  const waMessage = encodeURIComponent(`Hi ${s.name.split(" ")[0]}, thanks for submitting your ${s.year} ${s.make} ${s.model} to Jeremiah's Auto (ref ${s.ref}). We'd like to chat about it.`);
-  document.getElementById("ad-whatsapp-btn").href = `https://wa.me/${waNumber}?text=${waMessage}`;
-
-  showView("view-admin-detail");
-}
-
-document.getElementById("ad-status-select").addEventListener("change", function () {
-  const s = submissions.find(x => x.id === currentDetailId);
-  if (s) { s.status = this.value; persist(); }
-});
+// ---------------------------------------------------------------
+// INIT
+// ---------------------------------------------------------------
+renderDashboard();
+renderPhotoPreviews();
 </script>
+
 </body>
 </html>
